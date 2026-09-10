@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CustomerInsight AI — Apple Glassmorphism Edition</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="/static/glass.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .filled-icon { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+</style>
+</head>
+<body class="antialiased min-h-screen flex flex-col relative selection:bg-indigo-500 selection:text-white">
+
+<!-- Ambient Aurora Mesh Background -->
+<div class="aurora-bg"></div>
+
+<!-- Apple Frosted Header -->
+<header class="glass-header sticky top-0 z-50 px-6 lg:px-12 h-16 flex justify-between items-center">
+    <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+            <span class="material-symbols-outlined text-white text-xl">insights</span>
+        </div>
+        <div class="flex flex-col">
+            <div class="font-bold text-base tracking-tight text-white flex items-center gap-2">
+                CustomerInsight <span class="text-gradient-indigo font-extrabold">AI</span>
+                <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-white/10 text-slate-300 border border-white/10 font-medium">Nhóm 7 · UTH</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Apple Pill Navigation -->
+    <nav class="hidden md:flex items-center space-x-1 bg-white/[0.04] p-1.5 rounded-full border border-white/10 backdrop-blur-md">
+        <a href="/" class="nav-pill active">Tổng quan</a>
+        <a href="/data" class="nav-pill">Dữ liệu</a>
+        <a href="/eda" class="nav-pill">Khám phá</a>
+        <a href="/choose-k" class="nav-pill">Chọn K</a>
+        <a href="/clustering" class="nav-pill">Phân cụm</a>
+        <a href="/benchmark" class="nav-pill">Đối sánh 4 mô hình</a>
+        <a href="/predict" class="nav-pill">Dự đoán Bayes</a>
+        <a href="/results" class="nav-pill">Kết quả</a>
+    </nav>
+</header>
+
+<!-- Main Container -->
+<main class="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 py-10 flex-1 w-full space-y-12">
+    <!-- Hero Banner with Frosted Glass -->
+    <section class="glass-panel p-8 sm:p-12 relative overflow-hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div class="lg:col-span-7 space-y-6">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-medium">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Hệ thống Phân tích & Suy diễn Khách hàng Đa thuật toán
+                </div>
+                
+                <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+                    Hiểu rõ từng hành vi khách hàng với <span class="text-gradient-indigo">Trí Tuệ Nhân Tạo</span>
+                </h1>
+                
+                <p class="text-slate-300 text-base sm:text-lg leading-relaxed max-w-xl font-normal">
+                    Kết hợp sức mạnh giữa <b>Học không giám sát</b> (K-Means, Hierarchical Ward, GMM, DBSCAN) và <b>Học có giám sát</b> (Gaussian Naïve Bayes) để nhận diện phân khúc tự động theo thời gian thực.
+                </p>
+
+                <div class="flex flex-wrap items-center gap-4 pt-2">
+                    <a href="/data" class="btn-apple-primary text-sm gap-2">
+                        <span>Bắt đầu phân tích</span>
+                        <span class="material-symbols-outlined text-lg">arrow_forward</span>
+                    </a>
+                    <a href="/benchmark" class="btn-apple-secondary text-sm gap-2">
+                        <span class="material-symbols-outlined text-lg text-indigo-400">stacked_line_chart</span>
+                        <span>Xem đối sánh 4 mô hình</span>
+                    </a>
+                </div>
+
+                <div class="flex items-center gap-6 pt-4 border-t border-white/10 text-xs text-slate-400">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-emerald-400 text-base filled-icon">check_circle</span>
+                        Dataset Online Retail chuẩn hóa
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-indigo-400 text-base filled-icon">check_circle</span>
+                        Đánh giá Silhouette, CH & DB Index
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3D Interactive Particle Orb -->
+            <div class="lg:col-span-5 flex justify-center items-center relative">
+                <div class="w-full h-80 sm:h-96 rounded-2xl overflow-hidden relative" id="hologram-container">
+                    <div class="absolute bottom-4 left-4 z-10 px-3 py-1.5 rounded-lg bg-black/40 backdrop-blur-md border border-white/10 text-[11px] text-slate-300">
+                        ✨ Không gian cụm 3D tương tác (R - F - M)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Metrics & Architecture Bento Grid -->
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="glass-panel p-6 flex flex-col justify-between">
+            <div class="w-10 h-10 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400 mb-4">
+                <span class="material-symbols-outlined">hub</span>
+            </div>
+            <div>
+                <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Học Không Giám Sát</h3>
+                <div class="text-xl font-bold text-white mt-1">4 Thuật Toán Phân Cụm</div>
+                <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                    K-Means++, Hierarchical Agglomerative, GMM (EM Algorithm) và DBSCAN xử lý nhiễu.
+                </p>
+            </div>
+        </div>
+
+        <div class="glass-panel p-6 flex flex-col justify-between">
+            <div class="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-4">
+                <span class="material-symbols-outlined">psychology</span>
+            </div>
+            <div>
+                <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Học Có Giám Sát</h3>
+                <div class="text-xl font-bold text-white mt-1">Gaussian Naïve Bayes</div>
+                <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                    Chương 4 Giáo trình AI: Ước lượng xác suất hậu nghiệm P(C|X) phân khúc khách hàng mới tức thì.
+                </p>
+            </div>
+        </div>
+
+        <div class="glass-panel p-6 flex flex-col justify-between">
+            <div class="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-4">
+                <span class="material-symbols-outlined">speed</span>
+            </div>
+            <div>
+                <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Độ Tin Cậy</h3>
+                <div class="text-xl font-bold text-white mt-1">3 Thước Đo Khoa Học</div>
+                <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                    Silhouette Score, Calinski-Harabasz Index và Davies-Bouldin Index đánh giá độ gắn kết và tách biệt.
+                </p>
+            </div>
+        </div>
+
+        <div class="glass-panel p-6 flex flex-col justify-between">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-4">
+                <span class="material-symbols-outlined">bolt</span>
+            </div>
+            <div>
+                <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Tốc Độ Phản Hồi</h3>
+                <div class="text-xl font-bold text-white mt-1">&lt; 2ms Suy Diễn</div>
+                <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                    Tối ưu hóa vector hóa với NumPy/Scikit-Learn, sẵn sàng cho các nền tảng thương mại điện tử lớn.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Contributions Section (Báo cáo đồ án Nhóm 7) -->
+    <section class="space-y-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold text-white tracking-tight">Phân Công Nhiệm Vụ Đồ Án (Nhóm 7)</h2>
+                <p class="text-sm text-slate-400 mt-1">Đảm bảo tính độc lập và đóng góp chuyên sâu của từng thành viên</p>
+            </div>
+            <a href="/benchmark" class="text-sm font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
+                Xem chi tiết kỹ thuật
+                <span class="material-symbols-outlined text-base">chevron_right</span>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <!-- TT -->
+            <div class="glass-panel p-5 relative group hover:border-indigo-500/40">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-blue-500 flex items-center justify-center text-white font-bold text-xs shadow-md">
+                        TT
+                    </div>
+                    <div>
+                        <div class="font-bold text-white text-xs">Bùi Đăng Toàn Tỉnh</div>
+                        <div class="text-[10px] text-indigo-400 font-medium">Multi-algorithm Engine</div>
+                    </div>
+                </div>
+                <p class="text-[11px] text-slate-300 leading-relaxed">
+                    Nghiên cứu & tích hợp: <b>Hierarchical (Ward)</b>, <b>GMM</b> và <b>DBSCAN</b> xử lý ngoại lai.
+                </p>
+            </div>
+
+            <!-- HT -->
+            <div class="glass-panel p-5 relative group hover:border-cyan-500/40">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-cyan-500 to-teal-500 flex items-center justify-center text-white font-bold text-xs shadow-md">
+                        HT
+                    </div>
+                    <div>
+                        <div class="font-bold text-white text-xs">Đặng Hoàng Trung</div>
+                        <div class="text-[10px] text-cyan-400 font-medium">Mô hình dự đoán Naive Bayes</div>
+                    </div>
+                </div>
+                <p class="text-[11px] text-slate-300 leading-relaxed">
+                    Ứng dụng định lý Bayes (Chương 4) huấn luyện <b>GaussianNB</b> phân lớp thời gian thực.
+                </p>
+            </div>
+
+            <!-- DK -->
+            <div class="glass-panel p-5 relative group hover:border-purple-500/40">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xs shadow-md">
+                        DK
+                    </div>
+                    <div>
+                        <div class="font-bold text-white text-xs">Đặng Đình Khang</div>
+                        <div class="text-[10px] text-purple-400 font-medium">Web UI & API</div>
+                    </div>
+                </div>
+                <p class="text-[11px] text-slate-300 leading-relaxed">
+                    Kiến trúc <b>FastAPI RESTful</b> & thiết kế giao diện <b>Apple Glassmorphism Luxury</b>.
+                </p>
+            </div>
+
+            <!-- QH -->
+            <div class="glass-panel p-5 relative group hover:border-emerald-500/40">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-emerald-500 to-green-500 flex items-center justify-center text-white font-bold text-xs shadow-md">
+                        QH
+                    </div>
+                    <div>
+                        <div class="font-bold text-white text-xs">Nguyễn Quang Hiếu</div>
+                        <div class="text-[10px] text-emerald-400 font-medium">Báo cáo kỹ thuật</div>
+                    </div>
+                </div>
+                <p class="text-[11px] text-slate-300 leading-relaxed">
+                    Biên soạn hồ sơ học thuật đồ án, slide thuyết trình và phân tích kinh doanh.
+                </p>
+            </div>
+
+            <!-- TH -->
+            <div class="glass-panel p-5 relative group hover:border-rose-500/40">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-rose-500 to-amber-500 flex items-center justify-center text-white font-bold text-xs shadow-md">
+                        TH
+                    </div>
+                    <div>
+                        <div class="font-bold text-white text-xs">Nguyễn Thái Học</div>
+                        <div class="text-[10px] text-rose-400 font-medium">Đánh giá & Benchmark (QA)</div>
+                    </div>
+                </div>
+                <p class="text-[11px] text-slate-300 leading-relaxed">
+                    Đo lường chỉ số <b>Silhouette, CH, DB</b> và quản trị bộ kiểm thử <b>203 Test Cases</b>.
+                </p>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="relative z-10 border-t border-white/10 mt-16 py-8 px-6 text-center text-xs text-slate-400">
+    <p>CustomerInsight AI · Đồ án môn học Trí Tuệ Nhân Tạo — Đại học Giao Thông Vận Tải TP.HCM (UTH)</p>
+    <p class="mt-1 text-slate-500">Thiết kế theo ngôn ngữ Apple Glassmorphism / Frosting</p>
+</footer>
+
+<!-- Three.js Interactive Particle Sphere (Soft Pastel Colors) -->
+<script>
+(function() {
+    const container = document.getElementById("hologram-container");
+    if (!container) return;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+    camera.position.z = 180;
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    const particleCount = 1200;
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    const colors = new Float32Array(particleCount * 3);
+
+    // Three clusters: Indigo, Soft Mint, Violet
+    const palette = [
+        new THREE.Color("#818cf8"), // Indigo
+        new THREE.Color("#34d399"), // Mint
+        new THREE.Color("#c084fc")  // Violet
+    ];
+
+    for (let i = 0; i < particleCount; i++) {
+        const cluster = i % 3;
+        const radius = 45 + Math.random() * 25;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos((Math.random() * 2) - 1);
+
+        let ox = cluster === 0 ? -25 : (cluster === 1 ? 25 : 0);
+        let oy = cluster === 2 ? 20 : -10;
+        let oz = cluster === 0 ? 10 : -10;
+
+        positions[i * 3] = ox + radius * 0.6 * Math.sin(phi) * Math.cos(theta);
+        positions[i * 3 + 1] = oy + radius * 0.6 * Math.sin(phi) * Math.sin(theta);
+        positions[i * 3 + 2] = oz + radius * 0.6 * Math.cos(phi);
+
+        const col = palette[cluster];
+        colors[i * 3] = col.r;
+        colors[i * 3 + 1] = col.g;
+        colors[i * 3 + 2] = col.b;
+    }
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const material = new THREE.PointsMaterial({
+        size: 2.2,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.85,
+        blending: THREE.AdditiveBlending
+    });
+
+    const particles = new THREE.Points(geometry, material);
+    scene.add(particles);
+
+    let mouseX = 0, mouseY = 0;
+    window.addEventListener('mousemove', (e) => {
+        mouseX = (e.clientX - window.innerWidth / 2) * 0.0005;
+        mouseY = (e.clientY - window.innerHeight / 2) * 0.0005;
+    });
+
+    function animate() {
+        requestAnimationFrame(animate);
+        particles.rotation.y += 0.003 + mouseX * 0.1;
+        particles.rotation.x += 0.001 + mouseY * 0.1;
+        renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+        if (!container) return;
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+})();
+</script>
+</body>
+</html>

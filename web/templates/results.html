@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CustomerInsight AI — Tổng Hợp Kết Quả & Hồ Sơ Khách Hàng</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="/static/glass.css" rel="stylesheet"/>
+<style>
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .filled-icon { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+</style>
+</head>
+<body class="antialiased min-h-screen flex flex-col relative selection:bg-indigo-500 selection:text-white">
+
+<div class="aurora-bg"></div>
+
+<!-- Apple Frosted Header -->
+<header class="glass-header sticky top-0 z-50 px-6 lg:px-12 h-16 flex justify-between items-center">
+    <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+            <span class="material-symbols-outlined text-white text-xl">assessment</span>
+        </div>
+        <div class="flex flex-col">
+            <div class="font-bold text-base tracking-tight text-white flex items-center gap-2">
+                CustomerInsight <span class="text-gradient-indigo font-extrabold">AI</span>
+                <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-white/10 text-slate-300 border border-white/10 font-medium">Bước 05 · Kết quả & Xuất dữ liệu</span>
+            </div>
+        </div>
+    </div>
+    
+    <nav class="hidden md:flex items-center space-x-1 bg-white/[0.04] p-1.5 rounded-full border border-white/10 backdrop-blur-md">
+        <a href="/" class="nav-pill">Tổng quan</a>
+        <a href="/data" class="nav-pill">Dữ liệu</a>
+        <a href="/eda" class="nav-pill">Khám phá</a>
+        <a href="/choose-k" class="nav-pill">Chọn K</a>
+        <a href="/clustering" class="nav-pill">Phân cụm</a>
+        <a href="/benchmark" class="nav-pill">Đối sánh 4 mô hình</a>
+        <a href="/predict" class="nav-pill">Dự đoán Bayes</a>
+        <a href="/results" class="nav-pill active">Kết quả</a>
+    </nav>
+</header>
+
+<main class="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 py-10 flex-1 w-full space-y-8" id="results-panel">
+    <!-- Header Title -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="space-y-2">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-medium">
+                <span class="material-symbols-outlined text-sm">verified</span>
+                Phân Tích Hoàn Tất & Tổng Hợp Dữ Liệu
+            </div>
+            <h1 class="text-3xl font-extrabold text-white tracking-tight">Hồ Sơ Khách Hàng & Phân Đoạn 360°</h1>
+            <p class="text-slate-400 text-sm max-w-2xl">
+                Khám phá hồ sơ từng phân khúc khách hàng, tra cứu thông tin chi tiết và xuất kết quả phân tích sang định dạng CSV chuẩn hóa.
+            </p>
+        </div>
+        <div class="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-full text-xs font-medium text-slate-300">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span id="header-status-badge">Đang tải dữ liệu khách hàng...</span>
+        </div>
+    </div>
+
+    <!-- Segment Filter Tabs -->
+    <div class="flex gap-2 border-b border-white/10 overflow-x-auto pb-2 text-xs" id="segment-tabs">
+        <!-- Populated dynamically by JS -->
+    </div>
+
+    <!-- Dashboard Bento Grid (Cluster Cards) -->
+    <div class="grid grid-cols-12 gap-6" id="cluster-cards-container">
+        <!-- Populated dynamically by JS -->
+    </div>
+
+    <!-- Segment 360 & Comparison -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Detail Panel -->
+        <div class="glass-panel p-6 flex flex-col justify-between" id="profile-panel">
+            <div>
+                <h3 class="text-base font-bold text-white border-b border-white/10 pb-3 mb-3 flex items-center gap-2" id="profile-title">
+                    <span class="material-symbols-outlined text-indigo-400">badge</span>
+                    Tổng Quan Phân Khúc Khách Hàng
+                </h3>
+                <div class="text-xs text-slate-300 leading-relaxed mb-4" id="profile-desc">
+                    Chọn một thẻ phân khúc ở trên để xem hồ sơ RFM chi tiết và khuyến nghị kinh doanh.
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Charts -->
+        <div class="glass-panel p-6" id="comparison-panel">
+            <h3 class="text-base font-bold text-white border-b border-white/10 pb-3 mb-4 flex items-center gap-2">
+                <span class="material-symbols-outlined text-cyan-400">stacked_bar_chart</span>
+                So Sánh Giá Trị RFM Trung Bình Giữa Các Cụm
+            </h3>
+            <div class="space-y-4 text-xs" id="comparison-charts">
+                <!-- Populated dynamically by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table Section -->
+    <div class="glass-panel overflow-hidden">
+        <div class="p-6 border-b border-white/10 flex justify-between items-center flex-wrap gap-4 bg-white/[0.02]">
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-indigo-400">group</span>
+                Danh Sách Khách Hàng Chi Tiết
+                <span class="bg-white/10 px-2.5 py-0.5 rounded-full text-xs font-medium text-slate-300" id="table-count">...</span>
+            </h3>
+            <div class="flex items-center gap-3 flex-wrap">
+                <select class="glass-input px-3 py-1.5 text-xs text-slate-200" id="cluster-select">
+                    <option value="all">Tất cả phân khúc</option>
+                </select>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+                    <input class="glass-input pl-9 pr-4 py-1.5 text-xs text-slate-200 w-56" id="customer-search" placeholder="Tìm CustomerID..." type="text"/>
+                </div>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[800px] text-xs">
+                <thead>
+                    <tr class="bg-white/5 border-b border-white/10 text-slate-400 uppercase text-[11px] font-semibold tracking-wider">
+                        <th class="py-3 px-4">CustomerID</th>
+                        <th class="py-3 px-4">Recency (Ngày)</th>
+                        <th class="py-3 px-4">Frequency (Đơn)</th>
+                        <th class="py-3 px-4">Monetary ($)</th>
+                        <th class="py-3 px-4">Cụm</th>
+                        <th class="py-3 px-4">Tên Phân Khúc</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5 text-slate-300 font-mono" id="customer-tbody">
+                    <!-- Populated by results.js -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Export Center & Model Info -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Export Box -->
+        <div class="glass-panel p-6 flex flex-col justify-between h-full">
+            <div>
+                <h3 class="text-base font-bold text-white mb-2 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-emerald-400">download</span>
+                    Xuất Báo Cáo Kết Quả
+                </h3>
+                <p class="text-xs text-slate-400 mb-4">
+                    Tải toàn bộ danh sách khách hàng đã được gán nhãn phân khúc để tích hợp với hệ thống CRM hoặc chiến dịch Marketing.
+                </p>
+                <div class="p-4 rounded-xl bg-white/5 border border-white/10 flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                        <span class="material-symbols-outlined text-xl">description</span>
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-white">customer_results.csv</div>
+                        <div class="text-[11px] text-slate-400">Định dạng CSV, UTF-8 BOM, tương thích Microsoft Excel & PowerBI</div>
+                    </div>
+                </div>
+            </div>
+            <a href="/api/export" download="customer_results.csv" class="btn-apple-primary text-xs px-6 py-3 gap-2 bg-gradient-to-tr from-emerald-500 to-teal-600 shadow-emerald-500/25 self-start">
+                <span class="material-symbols-outlined text-base">download</span>
+                Tải Tệp CSV Kết Quả
+            </a>
+        </div>
+
+        <!-- Model Diagnostics Card -->
+        <div class="glass-panel p-6">
+            <details class="group cursor-pointer" open>
+                <summary class="text-base font-bold text-white flex justify-between items-center mb-0 list-none">
+                    <span class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-indigo-400">tune</span>
+                        Thông Tin Huấn Luyện Mô Hình
+                    </span>
+                    <span class="material-symbols-outlined text-slate-400 group-open:rotate-180 transition-transform">expand_more</span>
+                </summary>
+                <div class="mt-4 grid grid-cols-2 gap-3 border-t border-white/10 pt-3 text-xs" id="model-meta-grid">
+                    <div><span class="text-slate-400 text-[11px] block">Số cụm tối ưu K:</span><span class="text-white font-bold" id="meta-k">3</span></div>
+                    <div><span class="text-slate-400 text-[11px] block">Thuật toán khởi tạo:</span><span class="text-slate-300" id="meta-init">k-means++</span></div>
+                    <div><span class="text-slate-400 text-[11px] block">n_init:</span><span class="text-slate-300" id="meta-ninit">10</span></div>
+                    <div><span class="text-slate-400 text-[11px] block">random_state:</span><span class="text-slate-300" id="meta-rs">42</span></div>
+                    <div><span class="text-slate-400 text-[11px] block">max_iter:</span><span class="text-slate-300" id="meta-maxiter">300</span></div>
+                    <div><span class="text-slate-400 text-[11px] block">tol:</span><span class="text-slate-300" id="meta-tol">0.0001</span></div>
+                    <div class="col-span-2"><span class="text-slate-400 text-[11px] block">Inertia (WCSS):</span><span class="text-indigo-400 font-bold font-mono" id="meta-inertia">--</span></div>
+                    <div class="col-span-2"><span class="text-slate-400 text-[11px] block">Silhouette Score:</span><span class="text-emerald-400 font-bold font-mono" id="meta-silhouette">--</span></div>
+                    <div><span class="text-slate-400 text-[11px] block">Số vòng lặp:</span><span class="text-slate-300 font-bold" id="meta-iterations">--</span></div>
+                    <div><span class="text-slate-400 text-[11px] block">Thời gian chạy:</span><span class="text-slate-300 font-bold" id="meta-runtime">--</span></div>
+                </div>
+            </details>
+            
+            <div class="mt-4 space-y-2 text-xs text-slate-300 border-t border-white/10 pt-3" id="verification-checkmarks">
+                <div class="flex items-center gap-2 text-emerald-400">
+                    <span class="material-symbols-outlined text-sm filled-icon">check_circle</span>
+                    <span id="chk-customers">720/720 khách hàng đã được phân cụm thành công</span>
+                </div>
+                <div class="flex items-center gap-2 text-emerald-400">
+                    <span class="material-symbols-outlined text-sm filled-icon">check_circle</span>
+                    <span>Bảo toàn 100% tính toàn vẹn CustomerID</span>
+                </div>
+                <div class="flex items-center gap-2 text-emerald-400">
+                    <span class="material-symbols-outlined text-sm filled-icon">check_circle</span>
+                    <span>Không có giá trị khuyết thiếu trong kết quả</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Right Detail Drawer -->
+<div class="fixed inset-y-0 right-0 w-[420px] bg-[#0f172a]/95 backdrop-blur-2xl border-l border-white/10 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col" id="drawer">
+    <div class="p-6 border-b border-white/10 flex justify-between items-center bg-white/[0.02]">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <span class="material-symbols-outlined text-indigo-400">contact_page</span>
+            Hồ Sơ Khách Hàng 360°
+        </h3>
+        <button class="text-slate-400 hover:text-white p-1 rounded-full hover:bg-white/10 transition" id="close-drawer">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
+    <div class="p-6 flex-1 overflow-y-auto text-xs text-slate-300" id="drawer-content">
+        <!-- Populated by JS -->
+    </div>
+</div>
+
+<script src="/static/js/app.js"></script>
+<script src="/static/js/results.js"></script>
+</body>
+</html>

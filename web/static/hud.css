@@ -1,0 +1,183 @@
+/* ═══════════════════════════════════════════════════════════════
+   FUTURISTIC DATA SCI-FI HUD — CORE DESIGN SYSTEM
+   CustomerInsight AI — Mission Control Center (Nhóm 7 UTH)
+   ═══════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@500;600;700;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --hud-bg-void: #030712;
+    --hud-bg-surface: rgba(11, 19, 43, 0.75);
+    --hud-bg-card: rgba(15, 23, 42, 0.85);
+    --hud-bg-card-hover: rgba(22, 36, 68, 0.9);
+    --hud-cyan: #00f0ff;
+    --hud-cyan-dim: rgba(0, 240, 255, 0.25);
+    --hud-cyan-glow: rgba(0, 240, 255, 0.45);
+    --hud-emerald: #10b981;
+    --hud-emerald-glow: rgba(16, 185, 129, 0.4);
+    --hud-violet: #8b5cf6;
+    --hud-violet-glow: rgba(139, 92, 246, 0.4);
+    --hud-amber: #f59e0b;
+    --hud-rose: #f43f5e;
+    --hud-border: rgba(0, 240, 255, 0.18);
+    --hud-border-bright: rgba(0, 240, 255, 0.5);
+    --hud-text-bright: #f1f5f9;
+    --hud-text-muted: #94a3b8;
+    --hud-grid: rgba(0, 240, 255, 0.035);
+}
+
+/* Background sci-fi grid */
+body {
+    background-color: var(--hud-bg-void);
+    color: var(--hud-text-bright);
+    font-family: 'Inter', sans-serif;
+    background-image: 
+        linear-gradient(to right, var(--hud-grid) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--hud-grid) 1px, transparent 1px),
+        radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.08) 0%, transparent 65%),
+        radial-gradient(circle at 100% 100%, rgba(139, 92, 246, 0.06) 0%, transparent 50%);
+    background-size: 32px 32px, 32px 32px, 100% 100%, 100% 100%;
+    background-attachment: fixed;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* HUD Typography */
+.font-hud-tech { font-family: 'Orbitron', monospace; }
+.font-hud-mono { font-family: 'JetBrains Mono', monospace; }
+.font-hud-sub { font-family: 'Rajdhani', sans-serif; }
+
+/* HUD Glowing Text */
+.text-glow-cyan {
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.6), 0 0 25px rgba(0, 240, 255, 0.3);
+}
+.text-glow-emerald {
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.6), 0 0 25px rgba(16, 185, 129, 0.3);
+}
+.text-glow-violet {
+    text-shadow: 0 0 10px rgba(139, 92, 246, 0.6), 0 0 25px rgba(139, 92, 246, 0.3);
+}
+
+/* HUD Card Base with Glassmorphism */
+.hud-card {
+    background: var(--hud-bg-surface);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--hud-border);
+    position: relative;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hud-card:hover {
+    border-color: var(--hud-border-bright);
+    box-shadow: 0 12px 40px 0 rgba(0, 240, 255, 0.12), inset 0 0 15px rgba(0, 240, 255, 0.05);
+}
+
+/* HUD Tech Corner Brackets */
+.hud-corner-brackets {
+    position: relative;
+}
+.hud-corner-brackets::before,
+.hud-corner-brackets::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+.hud-corner-brackets::before {
+    top: -1px;
+    left: -1px;
+    border-top: 2px solid var(--hud-cyan);
+    border-left: 2px solid var(--hud-cyan);
+}
+.hud-corner-brackets::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 2px solid var(--hud-cyan);
+    border-right: 2px solid var(--hud-cyan);
+}
+
+/* HUD Button Hologram */
+.hud-btn-primary {
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.15) 0%, rgba(14, 165, 233, 0.25) 100%);
+    border: 1px solid var(--hud-cyan);
+    color: #ffffff;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.25);
+}
+
+.hud-btn-primary:hover {
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.35) 0%, rgba(14, 165, 233, 0.5) 100%);
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.5), inset 0 0 10px rgba(0, 240, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.hud-btn-emerald {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.3) 100%);
+    border: 1px solid var(--hud-emerald);
+    color: #ffffff;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.25);
+    transition: all 0.3s ease;
+}
+
+.hud-btn-emerald:hover {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.35) 0%, rgba(5, 150, 105, 0.5) 100%);
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.5);
+    transform: translateY(-1px);
+}
+
+/* Pulse animation */
+@keyframes hud-pulse-glow {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.9; transform: scale(1.05); }
+}
+.hud-pulse {
+    animation: hud-pulse-glow 2.5s infinite ease-in-out;
+}
+
+/* Radar Scan Line */
+@keyframes hud-scanline {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(1000%); }
+}
+.hud-scanline {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--hud-cyan), transparent);
+    opacity: 0.4;
+    animation: hud-scanline 6s linear infinite;
+    pointer-events: none;
+}
+
+/* Custom HUD Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: var(--hud-bg-void);
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 240, 255, 0.25);
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--hud-cyan);
+    box-shadow: 0 0 10px var(--hud-cyan);
+}

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CustomerInsight AI — Phân Cụm Khách Hàng</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="/static/glass.css" rel="stylesheet"/>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .filled-icon { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+</style>
+</head>
+<body class="antialiased min-h-screen flex flex-col relative selection:bg-indigo-500 selection:text-white">
+
+<div class="aurora-bg"></div>
+
+<!-- Apple Frosted Header -->
+<header class="glass-header sticky top-0 z-50 px-6 lg:px-12 h-16 flex justify-between items-center">
+    <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+            <span class="material-symbols-outlined text-white text-xl">bubble_chart</span>
+        </div>
+        <div class="flex flex-col">
+            <div class="font-bold text-base tracking-tight text-white flex items-center gap-2">
+                CustomerInsight <span class="text-gradient-indigo font-extrabold">AI</span>
+                <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-white/10 text-slate-300 border border-white/10 font-medium">Bước 04 · Phân cụm & Trực quan 3D</span>
+            </div>
+        </div>
+    </div>
+    
+    <nav class="hidden md:flex items-center space-x-1 bg-white/[0.04] p-1.5 rounded-full border border-white/10 backdrop-blur-md">
+        <a href="/" class="nav-pill">Tổng quan</a>
+        <a href="/data" class="nav-pill">Dữ liệu</a>
+        <a href="/eda" class="nav-pill">Khám phá</a>
+        <a href="/choose-k" class="nav-pill">Chọn K</a>
+        <a href="/clustering" class="nav-pill active">Phân cụm</a>
+        <a href="/benchmark" class="nav-pill">Đối sánh 4 mô hình</a>
+        <a href="/predict" class="nav-pill">Dự đoán Bayes</a>
+        <a href="/results" class="nav-pill">Kết quả</a>
+    </nav>
+</header>
+
+<main class="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 py-10 flex-1 w-full space-y-8" id="clustering-panel">
+    <!-- Header Title -->
+    <div class="space-y-2">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-medium">
+            <span class="material-symbols-outlined text-sm">view_in_ar</span>
+            Không Gian Vector 3D & Siêu Tham Số
+        </div>
+        <h1 class="text-3xl font-extrabold text-white tracking-tight">Phân Cụm Khách Hàng (Clustering)</h1>
+        <p class="text-slate-400 text-sm max-w-2xl">
+            Huấn luyện thuật toán phân cụm, tinh chỉnh siêu tham số và quan sát sự hình thành các phân khúc trong không gian 3 chiều tương tác xoay 360 độ.
+        </p>
+    </div>
+
+    <!-- Parameter Config & 3D Visualizer -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Sidebar Controls -->
+        <div class="lg:col-span-1 glass-panel p-6 space-y-6">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2 border-b border-white/10 pb-3">
+                <span class="material-symbols-outlined text-indigo-400 text-lg">tune</span>
+                Cấu Hình Tham Số
+            </h3>
+
+            <div class="space-y-4 text-xs">
+                <div>
+                    <label class="block text-slate-300 font-semibold mb-1">Số Cụm (K):</label>
+                    <input type="number" id="k-input" min="2" max="10" value="3" class="w-full glass-input px-3 py-2 text-sm" />
+                    <span class="text-[11px] text-slate-400 mt-1 block">Khuyến nghị toán học: K=3</span>
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 font-semibold mb-1">Phương pháp Khởi tạo (Init):</label>
+                    <select id="init-select" class="w-full glass-input px-3 py-2 text-sm">
+                        <option value="k-means++" selected>k-means++ (Tối ưu khoảng cách)</option>
+                        <option value="random">random (Ngẫu nhiên)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 font-semibold mb-1">Số Lần Chạy Độc Lập (n_init):</label>
+                    <input type="number" id="n-init-input" min="1" max="50" value="10" class="w-full glass-input px-3 py-2 text-sm" />
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 font-semibold mb-1">Seed Ngẫu Nhiên (random_state):</label>
+                    <input type="number" id="random-state-input" value="42" class="w-full glass-input px-3 py-2 text-sm" />
+                </div>
+
+                <button id="run-clustering-btn" class="btn-apple-primary text-xs w-full py-3 gap-2 mt-4">
+                    <span class="material-symbols-outlined text-lg">play_arrow</span>
+                    Thực Hiện Phân Cụm
+                </button>
+            </div>
+
+            <!-- Real-time Run Metrics -->
+            <div class="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2 text-xs">
+                <div class="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Chỉ số mô hình</div>
+                <div class="flex justify-between">
+                    <span class="text-slate-400">Inertia (WCSS):</span>
+                    <span class="text-white font-mono font-bold" id="metric-inertia">--</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-400">Silhouette Score:</span>
+                    <span class="text-emerald-400 font-mono font-bold" id="metric-silhouette">--</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-400">Số vòng lặp hội tụ:</span>
+                    <span class="text-slate-300 font-mono" id="metric-iterations">--</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3D Cluster Visualizer Panel -->
+        <div class="lg:col-span-3 glass-panel p-6 flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <span class="material-symbols-outlined text-cyan-400">view_in_ar</span>
+                    Biểu Đồ Phân Cụm 3D (Recency - Frequency - Monetary)
+                </h3>
+                <span class="text-xs text-slate-400">Xoay chuột 360° để quan sát phân bổ</span>
+            </div>
+            <div id="scatter-3d" class="w-full h-[480px] flex items-center justify-center text-slate-500 text-xs">
+                Đang khởi tạo không gian 3 chiều...
+            </div>
+        </div>
+    </div>
+
+    <!-- Cluster Profiles Summary -->
+    <div class="glass-panel p-6">
+        <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-indigo-400">group</span>
+            Hồ Sơ Trung Bình Của Từng Phân Khúc (Centroid Profiles)
+        </h3>
+        <div class="overflow-x-auto rounded-xl border border-white/10">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="bg-white/5 border-b border-white/10 text-slate-400 font-semibold">
+                        <th class="py-3 px-4">Cụm</th>
+                        <th class="py-3 px-4">Tên Phân Khúc</th>
+                        <th class="py-3 px-4">Số Lượng KH</th>
+                        <th class="py-3 px-4">Tỷ Lệ (%)</th>
+                        <th class="py-3 px-4">Mean Recency (Ngày)</th>
+                        <th class="py-3 px-4">Mean Frequency (Đơn)</th>
+                        <th class="py-3 px-4">Mean Monetary (USD)</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5 text-slate-300 font-mono" id="profiles-tbody">
+                    <!-- Populated by clustering.js -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Navigation Actions -->
+    <div class="flex justify-between items-center pt-4">
+        <a href="/choose-k" class="btn-apple-secondary text-sm gap-2">
+            <span class="material-symbols-outlined text-lg">arrow_back</span>
+            <span>Quay lại: Chọn K</span>
+        </a>
+        <div class="flex items-center gap-4">
+            <a href="/benchmark" class="btn-apple-secondary text-sm gap-2">
+                <span class="material-symbols-outlined text-lg text-indigo-400">compare_arrows</span>
+                <span>Đối sánh 4 mô hình</span>
+            </a>
+            <a href="/results" class="btn-apple-primary text-sm gap-2">
+                <span>Xem kết quả phân tích</span>
+                <span class="material-symbols-outlined text-lg">arrow_forward</span>
+            </a>
+        </div>
+    </div>
+</main>
+
+<script src="/static/js/app.js"></script>
+<script src="/static/js/clustering.js"></script>
+</body>
+</html>

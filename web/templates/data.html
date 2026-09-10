@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CustomerInsight AI — Dữ Liệu Khách Hàng</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="/static/glass.css" rel="stylesheet"/>
+<style>
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .filled-icon { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+</style>
+</head>
+<body class="antialiased min-h-screen flex flex-col relative selection:bg-indigo-500 selection:text-white">
+
+<div class="aurora-bg"></div>
+
+<!-- Apple Frosted Header -->
+<header class="glass-header sticky top-0 z-50 px-6 lg:px-12 h-16 flex justify-between items-center">
+    <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+            <span class="material-symbols-outlined text-white text-xl">database</span>
+        </div>
+        <div class="flex flex-col">
+            <div class="font-bold text-base tracking-tight text-white flex items-center gap-2">
+                CustomerInsight <span class="text-gradient-indigo font-extrabold">AI</span>
+                <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-white/10 text-slate-300 border border-white/10 font-medium">Bước 01 · Thu thập & Tiền xử lý</span>
+            </div>
+        </div>
+    </div>
+    
+    <nav class="hidden md:flex items-center space-x-1 bg-white/[0.04] p-1.5 rounded-full border border-white/10 backdrop-blur-md">
+        <a href="/" class="nav-pill">Tổng quan</a>
+        <a href="/data" class="nav-pill active">Dữ liệu</a>
+        <a href="/eda" class="nav-pill">Khám phá</a>
+        <a href="/choose-k" class="nav-pill">Chọn K</a>
+        <a href="/clustering" class="nav-pill">Phân cụm</a>
+        <a href="/benchmark" class="nav-pill">Đối sánh 4 mô hình</a>
+        <a href="/predict" class="nav-pill">Dự đoán Bayes</a>
+        <a href="/results" class="nav-pill">Kết quả</a>
+    </nav>
+</header>
+
+<main class="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 py-10 flex-1 w-full space-y-8" id="data-panel">
+    <!-- Header Title -->
+    <div class="space-y-2">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-xs font-medium">
+            <span class="material-symbols-outlined text-sm">cloud_upload</span>
+            Nhập & Chuẩn hóa Vector RFM
+        </div>
+        <h1 class="text-3xl font-extrabold text-white tracking-tight">Dữ Liệu Khách Hàng</h1>
+        <p class="text-slate-400 text-sm max-w-2xl">
+            Tải lên tệp giao dịch hoặc sử dụng tập mẫu Online Retail được chuẩn hóa sạch để bắt đầu trích xuất chỉ số RFM (Recency, Frequency, Monetary).
+        </p>
+    </div>
+
+    <!-- Upload & Dataset Action Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Dropzone Card -->
+        <div class="lg:col-span-2 glass-panel p-8 flex flex-col justify-center items-center text-center cursor-pointer group hover:border-indigo-500/50 transition relative" id="dropzone">
+            <input type="file" id="file-input" class="hidden" accept=".csv" />
+            <div class="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-4 group-hover:scale-110 group-hover:bg-indigo-500/20 transition duration-300 shadow-lg">
+                <span class="material-symbols-outlined text-3xl">upload_file</span>
+            </div>
+            <h3 class="text-base font-bold text-white mb-1">Kéo thả tệp CSV hoặc nhấn để duyệt</h3>
+            <p class="text-xs text-slate-400 max-w-sm mb-4">
+                Hỗ trợ định dạng CSV chứa các cột: CustomerID, InvoiceDate, Quantity, UnitPrice hoặc RFM trực tiếp.
+            </p>
+            <button class="btn-apple-primary text-xs px-5 py-2.5">
+                Chọn tệp từ thiết bị
+            </button>
+        </div>
+
+        <!-- Sample Dataset / Quick Load Card -->
+        <div class="glass-panel p-6 flex flex-col justify-between">
+            <div>
+                <div class="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-4">
+                    <span class="material-symbols-outlined">dataset</span>
+                </div>
+                <h3 class="text-base font-bold text-white mb-1">Dữ Liệu Mẫu Chuẩn</h3>
+                <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                    Tập dữ liệu chuẩn hóa gồm <b>720 khách hàng</b> tiêu biểu với các chỉ số RFM được phân phối thực tế.
+                </p>
+                <div class="space-y-2 text-xs text-slate-300 bg-white/5 p-3.5 rounded-xl border border-white/10">
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Số bản ghi:</span>
+                        <span class="font-semibold text-white">720 khách hàng</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Độ khuyết thiếu:</span>
+                        <span class="font-semibold text-emerald-400">0.0% (Đã làm sạch)</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Đặc trưng:</span>
+                        <span class="font-semibold text-cyan-300">Recency, Frequency, Monetary</span>
+                    </div>
+                </div>
+            </div>
+            <button id="load-sample-btn" class="btn-apple-secondary text-xs w-full mt-4 gap-2">
+                <span class="material-symbols-outlined text-base text-cyan-400">sync</span>
+                Nạp tập dữ liệu mẫu
+            </button>
+        </div>
+    </div>
+
+    <!-- Data Quality Assessment -->
+    <div class="glass-panel p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-indigo-400">verified_user</span>
+                Kiểm Định Chất Lượng Dữ Liệu (Data Integrity)
+            </h3>
+            <span class="text-xs px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20" id="quality-badge">
+                Sẵn sàng phân tích
+            </span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="border-b border-white/10 text-slate-400 font-semibold">
+                        <th class="py-3 px-4">Chỉ tiêu kiểm định</th>
+                        <th class="py-3 px-4">Giá trị đo lường</th>
+                        <th class="py-3 px-4">Tiêu chuẩn kỹ thuật</th>
+                        <th class="py-3 px-4">Đánh giá</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5 text-slate-300" id="quality-body">
+                    <tr>
+                        <td class="py-3 px-4 font-medium text-white">Số lượng mẫu (Sample Count)</td>
+                        <td class="py-3 px-4" id="stat-count">720</td>
+                        <td class="py-3 px-4 text-slate-400">&ge; 100 mẫu</td>
+                        <td class="py-3 px-4 text-emerald-400 font-semibold">Đạt chuẩn</td>
+                    </tr>
+                    <tr>
+                        <td class="py-3 px-4 font-medium text-white">Dữ liệu khuyết thiếu (Null / NaN)</td>
+                        <td class="py-3 px-4" id="stat-missing">0 giá trị</td>
+                        <td class="py-3 px-4 text-slate-400">0%</td>
+                        <td class="py-3 px-4 text-emerald-400 font-semibold">Đạt chuẩn</td>
+                    </tr>
+                    <tr>
+                        <td class="py-3 px-4 font-medium text-white">CustomerID duy nhất (Unique IDs)</td>
+                        <td class="py-3 px-4" id="stat-unique">100% duy nhất</td>
+                        <td class="py-3 px-4 text-slate-400">Không trùng lặp</td>
+                        <td class="py-3 px-4 text-emerald-400 font-semibold">Đạt chuẩn</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Data Preview Table -->
+    <div class="glass-panel p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-cyan-400">table_view</span>
+                Xem Trước Dữ Liệu RFM (Data Preview)
+            </h3>
+            <span class="text-xs text-slate-400" id="preview-count">Đang hiển thị các dòng đầu</span>
+        </div>
+        <div class="overflow-x-auto rounded-xl border border-white/10">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="bg-white/5 border-b border-white/10 text-slate-400 font-semibold">
+                        <th class="py-3 px-4">CustomerID</th>
+                        <th class="py-3 px-4">Recency (Ngày)</th>
+                        <th class="py-3 px-4">Frequency (Số đơn)</th>
+                        <th class="py-3 px-4">Monetary (Tổng USD)</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5 text-slate-300 font-mono" id="preview-body">
+                    <!-- Populated by data.js -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Next Step Action -->
+    <div class="flex justify-end pt-4">
+        <a href="/eda" class="btn-apple-primary text-sm gap-2">
+            <span>Tiếp tục: Khám phá phân phối (EDA)</span>
+            <span class="material-symbols-outlined text-lg">arrow_forward</span>
+        </a>
+    </div>
+</main>
+
+<script src="/static/js/app.js"></script>
+<script src="/static/js/data.js"></script>
+</body>
+</html>

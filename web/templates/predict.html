@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CustomerInsight AI — Dự Đoán Khách Hàng (Naïve Bayes)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="/static/glass.css" rel="stylesheet"/>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .filled-icon { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+</style>
+</head>
+<body class="antialiased min-h-screen flex flex-col relative selection:bg-indigo-500 selection:text-white">
+
+<div class="aurora-bg"></div>
+
+<!-- Apple Frosted Header -->
+<header class="glass-header sticky top-0 z-50 px-6 lg:px-12 h-16 flex justify-between items-center">
+    <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+            <span class="material-symbols-outlined text-white text-xl">psychology</span>
+        </div>
+        <div class="flex flex-col">
+            <div class="font-bold text-base tracking-tight text-white flex items-center gap-2">
+                CustomerInsight <span class="text-gradient-indigo font-extrabold">AI</span>
+                <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-white/10 text-slate-300 border border-white/10 font-medium">Học Có Giám Sát · Phụ trách: Đặng Hoàng Trung</span>
+            </div>
+        </div>
+    </div>
+    
+    <nav class="hidden md:flex items-center space-x-1 bg-white/[0.04] p-1.5 rounded-full border border-white/10 backdrop-blur-md">
+        <a href="/" class="nav-pill">Tổng quan</a>
+        <a href="/data" class="nav-pill">Dữ liệu</a>
+        <a href="/eda" class="nav-pill">Khám phá</a>
+        <a href="/choose-k" class="nav-pill">Chọn K</a>
+        <a href="/clustering" class="nav-pill">Phân cụm</a>
+        <a href="/benchmark" class="nav-pill">Đối sánh 4 mô hình</a>
+        <a href="/predict" class="nav-pill active">Dự đoán Bayes</a>
+        <a href="/results" class="nav-pill">Kết quả</a>
+    </nav>
+</header>
+
+<main class="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 py-10 flex-1 w-full space-y-8">
+    <!-- Header Title -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="space-y-2">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-medium">
+                <span class="material-symbols-outlined text-sm">bolt</span>
+                Định Lý Xác Suất Bayes (Chương 4 Giáo trình AI UTH)
+            </div>
+            <h1 class="text-3xl font-extrabold text-white tracking-tight">Dự Đoán Phân Khúc Bằng Naïve Bayes</h1>
+            <p class="text-slate-400 text-sm max-w-2xl">
+                Sau khi phân cụm không giám sát, mô hình <b>Gaussian Naïve Bayes</b> được huấn luyện để phân lớp nhanh cho các khách hàng mới phát sinh giao dịch mà không cần chạy lại toàn bộ thuật toán gom cụm.
+            </p>
+        </div>
+        <button id="btn-train-bayes" onclick="trainBayesModel()" class="btn-apple-primary text-xs px-6 py-3 gap-2 self-start md:self-auto">
+            <span class="material-symbols-outlined text-lg">model_training</span>
+            Huấn Luyện Mô Hình Bayes
+        </button>
+    </div>
+
+    <!-- Status Alert Box -->
+    <div id="status-box" class="hidden p-4 rounded-xl text-xs font-medium backdrop-blur-md"></div>
+
+    <!-- Simulator Form & Decision Hologram Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Input Form Card -->
+        <div class="lg:col-span-1 glass-panel p-6 space-y-5">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2 border-b border-white/10 pb-3">
+                <span class="material-symbols-outlined text-indigo-400 text-lg">person_search</span>
+                Nhập Chỉ Số Khách Hàng Mới
+            </h3>
+
+            <div class="space-y-4 text-xs">
+                <div>
+                    <div class="flex justify-between text-slate-300 font-semibold mb-1">
+                        <label>Recency (Lần mua gần nhất):</label>
+                        <span class="text-indigo-400 font-mono" id="recency-val">25 ngày</span>
+                    </div>
+                    <input id="inp-recency" type="number" min="0" max="1000" value="25" oninput="document.getElementById('recency-val').innerText = this.value + ' ngày'" class="w-full glass-input px-3 py-2 text-sm" />
+                    <span class="text-[11px] text-slate-400 block mt-1">VD: 15 ngày (khách mới), 120 ngày (rời bỏ)</span>
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-slate-300 font-semibold mb-1">
+                        <label>Frequency (Số đơn hàng):</label>
+                        <span class="text-indigo-400 font-mono" id="freq-val">8 đơn</span>
+                    </div>
+                    <input id="inp-frequency" type="number" min="1" max="500" value="8" oninput="document.getElementById('freq-val').innerText = this.value + ' đơn'" class="w-full glass-input px-3 py-2 text-sm" />
+                    <span class="text-[11px] text-slate-400 block mt-1">VD: 2 đơn (vãng lai), 15 đơn (trung thành)</span>
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-slate-300 font-semibold mb-1">
+                        <label>Monetary (Tổng chi tiêu tích luỹ):</label>
+                        <span class="text-indigo-400 font-mono" id="monetary-val">450 $</span>
+                    </div>
+                    <input id="inp-monetary" type="number" min="1" max="1000000" value="450" oninput="document.getElementById('monetary-val').innerText = this.value + ' $'" class="w-full glass-input px-3 py-2 text-sm" />
+                    <span class="text-[11px] text-slate-400 block mt-1">VD: 50$ (thấp), 1500$ (VIP)</span>
+                </div>
+
+                <button id="btn-predict-single" onclick="predictSingle()" class="btn-apple-primary text-xs w-full py-3 gap-2 mt-4 bg-gradient-to-tr from-emerald-500 to-teal-600 shadow-emerald-500/25">
+                    <span class="material-symbols-outlined text-lg">bolt</span>
+                    Dự Đoán Phân Khúc Ngay
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Card & Posterior Probabilities -->
+        <div class="lg:col-span-2 glass-panel p-6 flex flex-col justify-between">
+            <div>
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2 border-b border-white/10 pb-3 mb-4">
+                    <span class="material-symbols-outlined text-emerald-400 text-lg">verified</span>
+                    Kết Quả Phân Lớp & Độ Tin Cậy (Posterior Probability)
+                </h3>
+
+                <div id="predict-result-card" class="p-6 rounded-2xl bg-white/5 border border-white/10">
+                    <div class="text-center py-6">
+                        <span class="material-symbols-outlined text-slate-500 text-5xl mb-2">fingerprint</span>
+                        <p class="text-xs text-slate-400">
+                            Nhấn <b>"Huấn Luyện Mô Hình Bayes"</b> sau đó nhập các chỉ số RFM bên trái để phân loại khách hàng tức thì.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bayes Theorem Explain Box -->
+            <div class="mt-6 p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs text-indigo-200">
+                <div class="font-bold flex items-center gap-2 mb-1">
+                    <span class="material-symbols-outlined text-sm">functions</span>
+                    Công thức Toán học Bayes (Theorem):
+                </div>
+                <div class="font-mono text-[11px] p-2 rounded bg-black/30 text-indigo-300">
+                    P(Cluster_k | R, F, M) ∝ P(Cluster_k) × P(Recency | C_k) × P(Frequency | C_k) × P(Monetary | C_k)
+                </div>
+                <p class="text-[11px] text-slate-400 mt-2">
+                    Mỗi đặc trưng được giả định tuân theo phân phối chuẩn Gaussian N(μ, σ²) ứng với từng phân cụm khách hàng.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Validation Metrics & Probability Chart -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="glass-panel p-6">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2 border-b border-white/10 pb-3 mb-4">
+                <span class="material-symbols-outlined text-indigo-400 text-lg">tune</span>
+                Chỉ Số Đánh Giá Mô Hình Phân Lớp
+            </h3>
+            <div id="model-metrics-display" class="text-xs text-slate-400">
+                <p class="text-center text-slate-500 py-8">Chưa huấn luyện mô hình.</p>
+            </div>
+        </div>
+
+        <div class="glass-panel p-6">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2 border-b border-white/10 pb-3 mb-4">
+                <span class="material-symbols-outlined text-cyan-400 text-lg">bar_chart</span>
+                Phân Phối Xác Suất Hậu Nghiệm Từng Cụm
+            </h3>
+            <div id="chart-probabilities" class="w-full h-64 flex items-center justify-center text-slate-500 text-xs">
+                Chưa có dữ liệu dự đoán
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+let bayesTrained = false;
+
+async function trainBayesModel() {
+    const btn = document.getElementById("btn-train-bayes");
+    const statusBox = document.getElementById("status-box");
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined animate-spin mr-2">sync</span> Đang huấn luyện...';
+
+    statusBox.className = "p-4 rounded-xl text-xs font-medium bg-indigo-500/10 border border-indigo-500/20 text-indigo-200 flex items-center gap-2";
+    statusBox.innerHTML = '<span class="material-symbols-outlined animate-spin text-indigo-400">autorenew</span> Đang chia tập Train (80%) / Test (20%) và ước lượng phân phối Gaussian...';
+    statusBox.classList.remove("hidden");
+
+    try {
+        const response = await fetch("/api/train-bayes", { method: "POST" });
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.detail || "Không thể huấn luyện mô hình.");
+        }
+
+        bayesTrained = true;
+        statusBox.className = "p-4 rounded-xl text-xs font-medium bg-emerald-500/10 border border-emerald-500/20 text-emerald-200 flex items-center gap-2";
+        statusBox.innerHTML = `<span class="material-symbols-outlined text-emerald-400 filled-icon">check_circle</span> Huấn luyện thành công! Độ chính xác Test Set: <b class="text-white ml-1">${(data.accuracy * 100).toFixed(1)}%</b>`;
+
+        renderModelMetrics(data);
+    } catch (err) {
+        statusBox.className = "p-4 rounded-xl text-xs font-medium bg-rose-500/10 border border-rose-500/20 text-rose-200 flex items-center gap-2";
+        statusBox.innerHTML = '<span class="material-symbols-outlined text-rose-400">error</span> Lỗi: ' + err.message;
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined text-lg mr-2">model_training</span> Huấn Luyện Mô Hình Bayes';
+    }
+}
+
+function renderModelMetrics(data) {
+    const container = document.getElementById("model-metrics-display");
+    container.innerHTML = `
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                <span class="text-[11px] text-indigo-400 font-semibold uppercase tracking-wider">Test Accuracy</span>
+                <p class="text-2xl font-bold text-white mt-1">${(data.accuracy * 100).toFixed(2)}%</p>
+                <span class="text-[10px] text-slate-400">Kiểm thử độc lập</span>
+            </div>
+            <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                <span class="text-[11px] text-emerald-400 font-semibold uppercase tracking-wider">Train Accuracy</span>
+                <p class="text-2xl font-bold text-white mt-1">${(data.train_accuracy * 100).toFixed(2)}%</p>
+                <span class="text-[10px] text-slate-400">Khớp dữ liệu huấn luyện</span>
+            </div>
+        </div>
+        <div class="text-xs text-slate-300 p-3 rounded-xl bg-white/5 border border-white/10">
+            Mô hình đã học phân phối tiên nghiệm và tham số chuẩn. Sẵn sàng suy diễn cho khách hàng mới.
+        </div>
+    `;
+}
+
+async function predictSingle() {
+    const r = parseFloat(document.getElementById("inp-recency").value);
+    const f = parseFloat(document.getElementById("inp-frequency").value);
+    const m = parseFloat(document.getElementById("inp-monetary").value);
+
+    const card = document.getElementById("predict-result-card");
+
+    try {
+        const res = await fetch("/api/predict-customer", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ recency: r, frequency: f, monetary: m })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+            throw new Error(data.detail || "Không thể dự đoán.");
+        }
+
+        card.className = "p-6 rounded-2xl bg-gradient-to-tr from-emerald-500/15 to-teal-500/10 border border-emerald-500/30";
+        card.innerHTML = `
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    Phân Khúc Nhận Diện
+                </span>
+                <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold rounded-full">
+                    Độ tin cậy: ${(data.confidence * 100).toFixed(1)}%
+                </span>
+            </div>
+            <h4 class="text-2xl font-extrabold text-white mb-1">${data.segment_name}</h4>
+            <p class="text-xs text-slate-300 mb-4">Gán nhãn Cụm: <b>Cụm ${data.predicted_cluster}</b></p>
+            <div class="text-xs text-slate-200 bg-black/30 p-3.5 rounded-xl border border-white/10">
+                🎯 <b>Đề xuất chiến lược:</b> Khách hàng thuộc nhóm <b>${data.segment_name}</b>. Ưu tiên các chương trình khuyến mãi cá nhân hóa hoặc dịch vụ chăm sóc cao cấp tương ứng.
+            </div>
+        `;
+
+        renderProbChart(data.posterior_probabilities);
+    } catch (err) {
+        alert("Lỗi: " + err.message);
+    }
+}
+
+function renderProbChart(probs) {
+    const clusters = Object.keys(probs).map(k => "Cụm " + k);
+    const values = Object.values(probs);
+
+    const trace = {
+        x: clusters,
+        y: values,
+        type: 'bar',
+        marker: { 
+            color: ['#6366f1', '#10b981', '#a855f7', '#06b6d4', '#f59e0b'],
+            line: { color: 'rgba(255,255,255,0.4)', width: 1 }
+        },
+        text: values.map(v => (v * 100).toFixed(1) + '%'),
+        textposition: 'auto',
+    };
+
+    const layout = {
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent',
+        font: { family: 'Plus Jakarta Sans, sans-serif', color: '#94a3b8' },
+        margin: { t: 20, r: 20, l: 30, b: 35 },
+        yaxis: { range: [0, 1], gridcolor: 'rgba(255,255,255,0.05)' },
+        xaxis: { gridcolor: 'rgba(255,255,255,0.05)' }
+    };
+
+    Plotly.newPlot('chart-probabilities', [trace], layout, { responsive: true, displayModeBar: false });
+}
+</script>
+</body>
+</html>
