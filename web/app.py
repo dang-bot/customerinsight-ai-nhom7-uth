@@ -686,7 +686,21 @@ def run_benchmark_endpoint(request: Request):
     try:
         df_bench = benchmark_all_algorithms(state.scaled_matrix, target_k=target_k)
         records = df_bench.to_dict(orient="records")
-        return _with_session(_json_response({"status": "ok", "k": target_k, "table": records}), session_id)
+        algos = []
+        for r in records:
+            algos.append({
+                "name": str(r.get("Algorithm", "")),
+                "type": str(r.get("Type", "")),
+                "n_clusters": int(r.get("Clusters", target_k)),
+                "silhouette": r.get("Silhouette"),
+                "calinski_harabasz": r.get("Calinski_Harabasz"),
+                "davies_bouldin": r.get("Davies_Bouldin"),
+                "noise_points": int(r.get("NoisePoints", 0)),
+                "advantages": str(r.get("Advantages", "")),
+                "disadvantages": str(r.get("Disadvantages", "")),
+                "runtime_seconds": 0.05,
+            })
+        return _with_session(_json_response({"status": "ok", "k": target_k, "table": records, "algorithms": algos}), session_id)
     except Exception as exc:
         return _with_session(JSONResponse({"detail": f"Lỗi thực hiện benchmark: {exc}"}, status_code=500), session_id)
 

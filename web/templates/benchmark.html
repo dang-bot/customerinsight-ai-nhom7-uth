@@ -188,8 +188,17 @@ async function runBenchmark() {
         statusBox.className = "p-4 rounded-xl text-xs font-medium bg-emerald-500/10 border border-emerald-500/20 text-emerald-200 flex items-center gap-2";
         statusBox.innerHTML = '<span class="material-symbols-outlined text-emerald-400 filled-icon">check_circle</span> Hoàn tất tính toán đối sánh 4 thuật toán thành công!';
 
-        renderBenchmarkTable(data.algorithms);
-        renderCharts(data.algorithms);
+        const list = (data.algorithms || data.table || []).map(a => ({
+            name: a.name || a.Algorithm || "",
+            n_clusters: a.n_clusters !== undefined ? a.n_clusters : (a.Clusters !== undefined ? a.Clusters : 4),
+            silhouette: a.silhouette !== undefined ? a.silhouette : (a.Silhouette !== undefined ? a.Silhouette : null),
+            calinski_harabasz: a.calinski_harabasz !== undefined ? a.calinski_harabasz : (a.Calinski_Harabasz !== undefined ? a.Calinski_Harabasz : null),
+            davies_bouldin: a.davies_bouldin !== undefined ? a.davies_bouldin : (a.Davies_Bouldin !== undefined ? a.Davies_Bouldin : null),
+            runtime_seconds: a.runtime_seconds !== undefined ? a.runtime_seconds : 0.05
+        }));
+
+        renderBenchmarkTable(list);
+        renderCharts(list);
     } catch (err) {
         statusBox.className = "p-4 rounded-xl text-xs font-medium bg-rose-500/10 border border-rose-500/20 text-rose-200 flex items-center gap-2";
         statusBox.innerHTML = '<span class="material-symbols-outlined text-rose-400">error</span> Lỗi: ' + err.message;
@@ -201,6 +210,7 @@ async function runBenchmark() {
 
 function renderBenchmarkTable(algos) {
     const tbody = document.getElementById("benchmark-table-body");
+    if (!tbody || !algos) return;
     let html = "";
 
     algos.forEach((a) => {
@@ -214,9 +224,9 @@ function renderBenchmarkTable(algos) {
             <tr class="${highlightClass}">
                 <td class="py-3 px-4 font-bold text-white">${a.name}</td>
                 <td class="py-3 px-4">${a.n_clusters}</td>
-                <td class="py-3 px-4 text-emerald-400 font-bold">${a.silhouette !== null ? a.silhouette.toFixed(4) : "N/A"}</td>
-                <td class="py-3 px-4 text-cyan-300 font-bold">${a.calinski_harabasz !== null ? a.calinski_harabasz.toFixed(1) : "N/A"}</td>
-                <td class="py-3 px-4 text-rose-300 font-bold">${a.davies_bouldin !== null ? a.davies_bouldin.toFixed(4) : "N/A"}</td>
+                <td class="py-3 px-4 text-emerald-400 font-bold">${a.silhouette !== null && a.silhouette !== undefined ? a.silhouette.toFixed(4) : "N/A"}</td>
+                <td class="py-3 px-4 text-cyan-300 font-bold">${a.calinski_harabasz !== null && a.calinski_harabasz !== undefined ? a.calinski_harabasz.toFixed(1) : "N/A"}</td>
+                <td class="py-3 px-4 text-rose-300 font-bold">${a.davies_bouldin !== null && a.davies_bouldin !== undefined ? a.davies_bouldin.toFixed(4) : "N/A"}</td>
                 <td class="py-3 px-4 text-slate-400">${(a.runtime_seconds * 1000).toFixed(1)} ms</td>
                 <td class="py-3 px-4">${badge}</td>
             </tr>
@@ -227,6 +237,7 @@ function renderBenchmarkTable(algos) {
 }
 
 function renderCharts(algos) {
+    if (!algos || algos.length === 0) return;
     const names = algos.map(a => a.name.split(" ")[0]);
     const silhouettes = algos.map(a => a.silhouette);
     const calinskis = algos.map(a => a.calinski_harabasz);
@@ -245,7 +256,7 @@ function renderCharts(algos) {
     Plotly.newPlot('chart-silhouette', [{
         x: names, y: silhouettes, type: 'bar',
         marker: { color: '#818cf8', line: { color: 'rgba(255,255,255,0.3)', width: 1 } },
-        text: silhouettes.map(v => v ? v.toFixed(3) : "N/A"),
+        text: silhouettes.map(v => (v !== null && v !== undefined) ? v.toFixed(3) : "N/A"),
         textposition: 'auto',
     }], layoutBase, { responsive: true, displayModeBar: false });
 
@@ -253,7 +264,7 @@ function renderCharts(algos) {
     Plotly.newPlot('chart-calinski', [{
         x: names, y: calinskis, type: 'bar',
         marker: { color: '#38bdf8', line: { color: 'rgba(255,255,255,0.3)', width: 1 } },
-        text: calinskis.map(v => v ? v.toFixed(0) : "N/A"),
+        text: calinskis.map(v => (v !== null && v !== undefined) ? v.toFixed(0) : "N/A"),
         textposition: 'auto',
     }], layoutBase, { responsive: true, displayModeBar: false });
 
@@ -261,10 +272,14 @@ function renderCharts(algos) {
     Plotly.newPlot('chart-davies', [{
         x: names, y: dbs, type: 'bar',
         marker: { color: '#f43f5e', line: { color: 'rgba(255,255,255,0.3)', width: 1 } },
-        text: dbs.map(v => v ? v.toFixed(3) : "N/A"),
+        text: dbs.map(v => (v !== null && v !== undefined) ? v.toFixed(3) : "N/A"),
         textposition: 'auto',
     }], layoutBase, { responsive: true, displayModeBar: false });
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    runBenchmark();
+});
 </script>
 </body>
 </html>
