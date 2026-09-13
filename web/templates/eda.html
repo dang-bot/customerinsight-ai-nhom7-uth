@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>CustomerInsight AI — Khám Phá Dữ Liệu (EDA)</title>
+<title>CustomerInsight AI — Khám Phá & Tiền Xử Lý (EDA)</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="/static/glass.css" rel="stylesheet"/>
@@ -26,7 +26,7 @@
         <div class="flex flex-col">
             <div class="font-bold text-base tracking-tight text-white flex items-center gap-2">
                 CustomerInsight <span class="text-gradient-indigo font-extrabold">AI</span>
-                <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-white/10 text-slate-300 border border-white/10 font-medium">Bước 02 · Khám phá & Phân tích tương quan</span>
+                <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-white/10 text-slate-300 border border-white/10 font-medium">Bước 02 · Khám phá & Tiền xử lý</span>
             </div>
         </div>
     </div>
@@ -44,110 +44,324 @@
 </header>
 
 <main class="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 py-10 flex-1 w-full space-y-8" id="eda-panel">
-    <!-- Header Title -->
-    <div class="space-y-2">
-        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-medium">
-            <span class="material-symbols-outlined text-sm">analytics</span>
-            Phân Tích Thống Kê & Phân Phối RFM
+    <!-- Header Title & Quick Stats -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6">
+        <div class="space-y-2">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-medium">
+                <span class="material-symbols-outlined text-sm">analytics</span>
+                Phân Tích Thống Kê & Tiền Xử Lý Dữ Liệu RFM
+            </div>
+            <h1 class="text-3xl font-extrabold text-white tracking-tight">Khám Phá Phân Phối Dữ Liệu (EDA)</h1>
+            <p class="text-slate-400 text-sm max-w-2xl">
+                Đánh giá độ lệch (skewness), xử lý ngoại lệ IQR, phân phối mật độ xác suất và ma trận tương quan giữa 3 đặc trưng cốt lõi Recency, Frequency, Monetary.
+            </p>
         </div>
-        <h1 class="text-3xl font-extrabold text-white tracking-tight">Khám Phá Phân Phối Dữ Liệu (EDA)</h1>
-        <p class="text-slate-400 text-sm max-w-2xl">
-            Đánh giá độ lệch (skewness), phân phối mật độ xác suất và ma trận tương quan giữa 3 đặc trưng cốt lõi Recency, Frequency, Monetary.
-        </p>
-    </div>
-
-    <!-- Summary Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Recency Card -->
-        <div class="glass-panel p-6">
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400">Recency (R)</span>
-                <span class="material-symbols-outlined text-indigo-400 text-lg">calendar_month</span>
+        <div class="flex items-center gap-3">
+            <div class="glass-panel px-4 py-2.5 flex items-center gap-3">
+                <span class="material-symbols-outlined text-indigo-400 text-xl">group</span>
+                <div>
+                    <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Tập khách hàng</div>
+                    <div class="text-base font-bold text-white font-mono" id="header-customer-count">--</div>
+                </div>
             </div>
-            <div class="text-2xl font-bold text-white" id="stat-r-mean">-- ngày</div>
-            <p class="text-xs text-slate-400 mt-1">Khoảng thời gian trung bình từ lần giao dịch gần nhất.</p>
-            <div class="mt-4 pt-3 border-t border-white/10 flex justify-between text-xs text-slate-300 font-mono">
-                <span>Min: <b id="stat-r-min" class="text-white">--</b></span>
-                <span>Max: <b id="stat-r-max" class="text-white">--</b></span>
-            </div>
-        </div>
-
-        <!-- Frequency Card -->
-        <div class="glass-panel p-6">
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-xs font-semibold uppercase tracking-wider text-cyan-400">Frequency (F)</span>
-                <span class="material-symbols-outlined text-cyan-400 text-lg">repeat</span>
-            </div>
-            <div class="text-2xl font-bold text-white" id="stat-f-mean">-- đơn</div>
-            <p class="text-xs text-slate-400 mt-1">Số lần phát sinh hóa đơn giao dịch tích luỹ.</p>
-            <div class="mt-4 pt-3 border-t border-white/10 flex justify-between text-xs text-slate-300 font-mono">
-                <span>Min: <b id="stat-f-min" class="text-white">--</b></span>
-                <span>Max: <b id="stat-f-max" class="text-white">--</b></span>
-            </div>
-        </div>
-
-        <!-- Monetary Card -->
-        <div class="glass-panel p-6">
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-xs font-semibold uppercase tracking-wider text-emerald-400">Monetary (M)</span>
-                <span class="material-symbols-outlined text-emerald-400 text-lg">payments</span>
-            </div>
-            <div class="text-2xl font-bold text-white" id="stat-m-mean">-- $</div>
-            <p class="text-xs text-slate-400 mt-1">Tổng doanh thu đem lại từ khách hàng.</p>
-            <div class="mt-4 pt-3 border-t border-white/10 flex justify-between text-xs text-slate-300 font-mono">
-                <span>Min: <b id="stat-m-min" class="text-white">--</b></span>
-                <span>Max: <b id="stat-m-max" class="text-white">--</b></span>
+            <div id="pipeline-overall-badge" class="px-3.5 py-2 bg-white/5 border border-white/10 text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm text-amber-400">pending</span> Chờ tiền xử lý
             </div>
         </div>
     </div>
 
-    <!-- Charts Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Distribution Chart -->
-        <div class="glass-panel p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-base font-bold text-white flex items-center gap-2">
-                    <span class="material-symbols-outlined text-indigo-400">bar_chart</span>
-                    Biểu Đồ Phân Phối Tần Suất
-                </h3>
+    <!-- Preprocess Action Banner (Displays if data not preprocessed yet) -->
+    <div id="preprocess-action-banner" class="glass-panel p-6 border-indigo-500/30 bg-gradient-to-r from-indigo-950/40 via-purple-950/30 to-slate-900/40 shadow-xl relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
+            <div class="space-y-1.5 max-w-2xl">
+                <div class="flex items-center gap-2 text-indigo-400 font-semibold text-sm">
+                    <span class="material-symbols-outlined text-lg">tune</span>
+                    Bước Yêu Cầu: Kích Hoạt Pipeline Tiền Xử Lý Dữ Liệu
+                </div>
+                <h2 class="text-xl font-bold text-white">Làm sạch Missing Values & Giới hạn Ngoại lệ (IQR Clipping)</h2>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    Dữ liệu RFM thô thường có độ lệch lớn và ngoại lệ cực trị làm sai lệch tâm cụm K-Means. Vui lòng chọn chiến lược xử lý và nhấn bắt đầu để hệ thống tự động chuẩn hoá và vẽ biểu đồ phân phối.
+                </p>
             </div>
-            <div id="distribution-chart" class="w-full h-80 flex items-center justify-center text-slate-500 text-xs">
-                Đang vẽ biểu đồ phân phối...
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+                <div class="flex flex-col gap-1">
+                    <label class="text-[11px] text-slate-400 font-medium">Chiến lược ngoại lệ:</label>
+                    <select id="outlier-strategy" class="bg-black/40 border border-white/15 rounded-xl px-3.5 py-2 text-xs text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <option value="iqr_clip">IQR Clipping (Khuyên dùng - Chuẩn Tukey)</option>
+                        <option value="keep">Keep (Giữ nguyên ngoại lệ - Median Imputation)</option>
+                    </select>
+                </div>
+                <button id="btn-run-preprocess" class="btn-apple-primary text-xs sm:text-sm whitespace-nowrap self-end gap-2 px-5 py-2.5 shadow-lg shadow-indigo-500/30">
+                    <span class="material-symbols-outlined text-lg">play_arrow</span>
+                    <span>Tiến hành Tiền Xử Lý & Khám Phá</span>
+                </button>
             </div>
         </div>
+        <div id="eda-error" class="hidden mt-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2"></div>
+    </div>
 
-        <!-- Correlation Heatmap -->
-        <div class="glass-panel p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-base font-bold text-white flex items-center gap-2">
-                    <span class="material-symbols-outlined text-cyan-400">grid_on</span>
-                    Ma Trận Tương Quan (Correlation Matrix)
-                </h3>
+    <!-- 5-Step Pipeline Card -->
+    <div class="glass-panel p-6 space-y-4">
+        <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-indigo-400 text-base">alt_route</span>
+                Quy Trình Tiền Xử Lý 5 Bước (Pipeline Flow)
+            </h3>
+            <span class="text-xs text-slate-400">Chiến lược hiện tại: <b id="pipe-outlier-strategy" class="text-indigo-300">IQR Clipping</b></span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 pt-2">
+            <!-- Node 1 -->
+            <div class="p-3.5 rounded-xl bg-white/[0.03] border border-white/10 space-y-2">
+                <div class="flex items-center justify-between">
+                    <div id="pipe-node-1" class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-xs">1</div>
+                    <span id="pipe-status-1" class="text-[10px] text-slate-400">Chờ xử lý</span>
+                </div>
+                <div class="text-xs font-semibold text-white">1. Nạp Dữ Liệu Gốc</div>
+                <div class="text-[11px] text-slate-400"><span id="pipe-row-count" class="font-mono text-white">--</span> bản ghi</div>
             </div>
-            <div id="correlation-chart" class="w-full h-80 flex items-center justify-center text-slate-500 text-xs">
-                Đang vẽ ma trận tương quan...
+            <!-- Node 2 -->
+            <div class="p-3.5 rounded-xl bg-white/[0.03] border border-white/10 space-y-2">
+                <div class="flex items-center justify-between">
+                    <div id="pipe-node-2" class="w-7 h-7 rounded-lg bg-white/5 text-slate-400 flex items-center justify-center font-bold text-xs">2</div>
+                    <span id="pipe-status-2" class="text-[10px] text-slate-400">Chờ xử lý</span>
+                </div>
+                <div class="text-xs font-semibold text-white">2. Xử Lý Khuyết Thiếu</div>
+                <div class="text-[11px] text-slate-400"><span id="pipe-missing-count" class="font-mono text-white">--</span> missing</div>
+            </div>
+            <!-- Node 3 -->
+            <div class="p-3.5 rounded-xl bg-white/[0.03] border border-white/10 space-y-2">
+                <div class="flex items-center justify-between">
+                    <div id="pipe-node-3" class="w-7 h-7 rounded-lg bg-white/5 text-slate-400 flex items-center justify-center font-bold text-xs">3</div>
+                    <span id="pipe-status-3" class="text-[10px] text-slate-400">Chờ xử lý</span>
+                </div>
+                <div class="text-xs font-semibold text-white">3. Kiểm Soát Ngoại Lệ</div>
+                <div class="text-[11px] text-slate-400"><span id="pipe-outlier-count" class="font-mono text-white">--</span> ngoại lệ</div>
+            </div>
+            <!-- Node 4 -->
+            <div class="p-3.5 rounded-xl bg-white/[0.03] border border-white/10 space-y-2">
+                <div class="flex items-center justify-between">
+                    <div id="pipe-node-4" class="w-7 h-7 rounded-lg bg-white/5 text-slate-400 flex items-center justify-center font-bold text-xs">4</div>
+                    <span id="pipe-status-4" class="text-[10px] text-slate-400">Chờ xử lý</span>
+                </div>
+                <div class="text-xs font-semibold text-white">4. Chuẩn Hoá RFM</div>
+                <div class="text-[11px] text-slate-400">StandardScaler Z-Score</div>
+            </div>
+            <!-- Node 5 -->
+            <div class="p-3.5 rounded-xl bg-white/[0.03] border border-white/10 space-y-2">
+                <div class="flex items-center justify-between">
+                    <div id="pipe-node-5" class="w-7 h-7 rounded-lg bg-white/5 text-slate-400 flex items-center justify-center font-bold text-xs">5</div>
+                    <span id="pipe-status-5" class="text-[10px] text-slate-400">Chờ kích hoạt</span>
+                </div>
+                <div class="text-xs font-semibold text-white" id="pipe-title-5">5. Sẵn Sàng Phân Cụm</div>
+                <div class="text-[11px] text-emerald-400 font-medium">K-Means Engine</div>
             </div>
         </div>
     </div>
 
-    <!-- Scatter Matrix -->
-    <div class="glass-panel p-6">
-        <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
-            <span class="material-symbols-outlined text-purple-400">scatter_plot</span>
-            Không Gian Tương Quan Cặp (Recency vs Monetary & Frequency)
-        </h3>
-        <div id="scatter-chart" class="w-full h-96 flex items-center justify-center text-slate-500 text-xs">
-            Đang hiển thị không gian phân tán...
+    <!-- EDA Results Container -->
+    <div id="eda-results-container" class="space-y-8 transition-opacity duration-300">
+        <!-- Feature Switch Tabs -->
+        <div class="flex items-center justify-between border-b border-white/10 pb-2">
+            <div class="flex items-center space-x-2 bg-white/[0.04] p-1 rounded-xl border border-white/10">
+                <button id="tab-recency" class="px-4 py-2 rounded-lg text-xs font-semibold transition-all text-white bg-indigo-600 shadow-md">
+                    Recency (R)
+                </button>
+                <button id="tab-frequency" class="px-4 py-2 rounded-lg text-xs font-semibold transition-all text-slate-300 hover:text-white">
+                    Frequency (F)
+                </button>
+                <button id="tab-monetary" class="px-4 py-2 rounded-lg text-xs font-semibold transition-all text-slate-300 hover:text-white">
+                    Monetary (M)
+                </button>
+            </div>
+            <div class="text-xs text-slate-400 hidden sm:block">
+                Xem phân phối tần suất và biểu đồ kiểm soát ngoại lệ tương ứng
+            </div>
+        </div>
+
+        <!-- Charts Grid (Histogram & Boxplot) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Histogram Card -->
+            <div class="glass-panel p-6 space-y-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-indigo-400">bar_chart</span>
+                        <h3 class="text-sm font-bold text-white">Biểu Đồ Phân Phối Tần Suất (Histogram)</h3>
+                    </div>
+                    <span id="hist-legend" class="text-[11px] px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">Sau IQR Clipping</span>
+                </div>
+                <div id="chart-histogram" class="w-full h-80 rounded-xl overflow-hidden"></div>
+            </div>
+
+            <!-- Strategy Boxplot Card -->
+            <div class="glass-panel p-6 space-y-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-teal-400">candlestick_chart</span>
+                        <h3 class="text-sm font-bold text-white">So Sánh Ngoại Lệ Trước & Sau (Boxplot)</h3>
+                    </div>
+                    <span id="box-legend" class="text-[11px] px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-300 border border-teal-500/30">Trước vs Sau Xử Lý</span>
+                </div>
+                <div id="chart-boxplot" class="w-full h-80 rounded-xl overflow-hidden"></div>
+            </div>
+        </div>
+
+        <!-- Outlier Before/After Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Recency Detail -->
+            <div class="glass-panel p-5 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Recency (R)</span>
+                    <span class="text-[11px] px-2 py-0.5 rounded bg-white/5 text-slate-300" data-strategy-badge>Đã giới hạn ngoại lệ</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-xs font-mono pt-1">
+                    <div class="p-2.5 rounded-lg bg-white/[0.02] border border-white/5">
+                        <span class="text-slate-400 block text-[10px]">Max Ban Đầu</span>
+                        <b id="recency-raw-max" class="text-rose-400 text-sm">--</b>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-white/[0.02] border border-white/5">
+                        <span class="text-slate-400 block text-[10px]" data-processed-label>Sau Xử Lý</span>
+                        <b id="recency-clipped-max" class="text-emerald-400 text-sm">--</b>
+                    </div>
+                </div>
+                <div class="text-[11px] text-slate-400 flex justify-between pt-1">
+                    <span>Số ngoại lệ: <b id="recency-outliers" class="text-white">--</b></span>
+                    <span id="recency-clipped-pct" class="text-indigo-300">--</span>
+                </div>
+            </div>
+
+            <!-- Frequency Detail -->
+            <div class="glass-panel p-5 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-cyan-400">Frequency (F)</span>
+                    <span class="text-[11px] px-2 py-0.5 rounded bg-white/5 text-slate-300" data-strategy-badge>Đã giới hạn ngoại lệ</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-xs font-mono pt-1">
+                    <div class="p-2.5 rounded-lg bg-white/[0.02] border border-white/5">
+                        <span class="text-slate-400 block text-[10px]">Max Ban Đầu</span>
+                        <b id="frequency-raw-max" class="text-rose-400 text-sm">--</b>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-white/[0.02] border border-white/5">
+                        <span class="text-slate-400 block text-[10px]" data-processed-label>Sau Xử Lý</span>
+                        <b id="frequency-clipped-max" class="text-emerald-400 text-sm">--</b>
+                    </div>
+                </div>
+                <div class="text-[11px] text-slate-400 flex justify-between pt-1">
+                    <span>Số ngoại lệ: <b id="frequency-outliers" class="text-white">--</b></span>
+                    <span id="frequency-clipped-pct" class="text-cyan-300">--</span>
+                </div>
+            </div>
+
+            <!-- Monetary Detail -->
+            <div class="glass-panel p-5 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Monetary (M)</span>
+                    <span class="text-[11px] px-2 py-0.5 rounded bg-white/5 text-slate-300" data-strategy-badge>Đã giới hạn ngoại lệ</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-xs font-mono pt-1">
+                    <div class="p-2.5 rounded-lg bg-white/[0.02] border border-white/5">
+                        <span class="text-slate-400 block text-[10px]">Max Ban Đầu</span>
+                        <b id="monetary-raw-max" class="text-rose-400 text-sm">--</b>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-white/[0.02] border border-white/5">
+                        <span class="text-slate-400 block text-[10px]" data-processed-label>Sau Xử Lý</span>
+                        <b id="monetary-clipped-max" class="text-emerald-400 text-sm">--</b>
+                    </div>
+                </div>
+                <div class="text-[11px] text-slate-400 flex justify-between pt-1">
+                    <span>Số ngoại lệ: <b id="monetary-outliers" class="text-white">--</b></span>
+                    <span id="monetary-clipped-pct" class="text-emerald-300">--</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Correlation Matrix & Descriptive Stats -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Correlation Matrix Glass Table -->
+            <div class="glass-panel p-6 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <span class="material-symbols-outlined text-indigo-400 text-base">grid_on</span>
+                        Ma Trận Tương Quan (Pearson)
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-center border-collapse">
+                        <thead>
+                            <tr class="text-slate-400 border-b border-white/10">
+                                <th class="p-2.5 text-left font-medium">RFM</th>
+                                <th class="p-2.5 font-medium">Recency</th>
+                                <th class="p-2.5 font-medium">Frequency</th>
+                                <th class="p-2.5 font-medium">Monetary</th>
+                            </tr>
+                        </thead>
+                        <tbody class="font-mono divide-y divide-white/5 text-slate-200">
+                            <tr>
+                                <td class="p-2.5 text-left font-sans font-semibold text-indigo-400">Recency</td>
+                                <td id="corr-rr" class="p-2.5 bg-indigo-500/10 font-bold text-white">1.00</td>
+                                <td id="corr-rf" class="p-2.5">--</td>
+                                <td id="corr-rm" class="p-2.5">--</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 text-left font-sans font-semibold text-cyan-400">Frequency</td>
+                                <td id="corr-fr" class="p-2.5">--</td>
+                                <td id="corr-ff" class="p-2.5 bg-indigo-500/10 font-bold text-white">1.00</td>
+                                <td id="corr-fm" class="p-2.5">--</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 text-left font-sans font-semibold text-emerald-400">Monetary</td>
+                                <td id="corr-mr" class="p-2.5">--</td>
+                                <td id="corr-mf" class="p-2.5">--</td>
+                                <td id="corr-mm" class="p-2.5 bg-indigo-500/10 font-bold text-white">1.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-[11px] text-slate-400 leading-relaxed">
+                    Hệ số Pearson dao động từ -1 đến +1. Tương quan dương mạnh giữa Frequency & Monetary thường chỉ ra phân khúc khách hàng trung thành chi tiêu cao.
+                </p>
+            </div>
+
+            <!-- Descriptive Statistics Table -->
+            <div class="glass-panel p-6 space-y-4 lg:col-span-2">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <span class="material-symbols-outlined text-purple-400 text-base">table_chart</span>
+                        Bảng Thống Kê Mô Tả Chi Tiết (Raw vs Processed)
+                    </h3>
+                    <span class="text-xs text-slate-400" id="footer-customer-count">-- khách hàng</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left border-collapse">
+                        <thead>
+                            <tr class="text-slate-400 border-b border-white/10 font-medium">
+                                <th class="p-2.5">Đặc trưng</th>
+                                <th class="p-2.5">Trạng thái</th>
+                                <th class="p-2.5 text-right">Mean</th>
+                                <th class="p-2.5 text-right">Std</th>
+                                <th class="p-2.5 text-right">Min</th>
+                                <th class="p-2.5 text-right">25%</th>
+                                <th class="p-2.5 text-right">Median</th>
+                                <th class="p-2.5 text-right">75%</th>
+                                <th class="p-2.5 text-right">Max</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stats-table-body" class="font-mono text-slate-300 divide-y divide-white/5">
+                            <!-- Populated dynamically by eda.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Next Step Action -->
-    <div class="flex justify-between items-center pt-4">
+    <!-- Navigation Step Action -->
+    <div class="flex justify-between items-center pt-4 border-t border-white/10">
         <a href="/data" class="btn-apple-secondary text-sm gap-2">
             <span class="material-symbols-outlined text-lg">arrow_back</span>
-            <span>Quay lại: Dữ liệu</span>
+            <span>Quay lại: Quản lý Dữ liệu</span>
         </a>
-        <a href="/choose-k" class="btn-apple-primary text-sm gap-2">
+        <a id="btn-to-choose-k" href="/choose-k" class="btn-apple-primary text-sm gap-2">
             <span>Tiếp tục: Xác định số cụm K</span>
             <span class="material-symbols-outlined text-lg">arrow_forward</span>
         </a>
