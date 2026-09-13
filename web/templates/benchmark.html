@@ -109,37 +109,31 @@
                 </h3>
                 <span class="text-[11px] text-indigo-300 font-medium">Tách biệt tốt</span>
             </div>
-            <div id="chart-silhouette" class="w-full h-64 flex items-center justify-center text-slate-500 text-xs">
-                Chờ khởi tạo dữ liệu
-            </div>
+            <div id="chart-silhouette" class="w-full h-72"></div>
         </div>
 
         <!-- Calinski-Harabasz Chart Card -->
-        <div class="glass-panel p-6">
-            <div class="flex items-center justify-between mb-4">
+        <div class="glass-panel p-6 space-y-2">
+            <div class="flex items-center justify-between">
                 <h3 class="text-sm font-bold text-white flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
                     Calinski-Harabasz Index
                 </h3>
-                <span class="text-[11px] text-cyan-300 font-medium">Độ gắn kết</span>
+                <span class="text-[11px] text-cyan-300 font-medium">Độ gắn kết (Cao hơn tốt hơn)</span>
             </div>
-            <div id="chart-calinski" class="w-full h-64 flex items-center justify-center text-slate-500 text-xs">
-                Chờ khởi tạo dữ liệu
-            </div>
+            <div id="chart-calinski" class="w-full h-72"></div>
         </div>
 
         <!-- Davies-Bouldin Chart Card -->
-        <div class="glass-panel p-6">
-            <div class="flex items-center justify-between mb-4">
+        <div class="glass-panel p-6 space-y-2">
+            <div class="flex items-center justify-between">
                 <h3 class="text-sm font-bold text-white flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span>
                     Davies-Bouldin Index
                 </h3>
-                <span class="text-[11px] text-rose-300 font-medium">Độ chồng lấn</span>
+                <span class="text-[11px] text-rose-300 font-medium">Độ chồng lấn (Thấp hơn tốt hơn)</span>
             </div>
-            <div id="chart-davies" class="w-full h-64 flex items-center justify-center text-slate-500 text-xs">
-                Chờ khởi tạo dữ liệu
-            </div>
+            <div id="chart-davies" class="w-full h-72"></div>
         </div>
     </div>
 
@@ -238,7 +232,23 @@ function renderBenchmarkTable(algos) {
 
 function renderCharts(algos) {
     if (!algos || algos.length === 0) return;
-    const names = algos.map(a => a.name.split(" ")[0]);
+
+    ['chart-silhouette', 'chart-calinski', 'chart-davies'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.innerHTML = '';
+            el.className = 'w-full h-72';
+        }
+    });
+
+    const names = algos.map(a => {
+        if (a.name.includes("K-Means")) return "K-Means";
+        if (a.name.includes("Hierarchical")) return "Hierarchical";
+        if (a.name.includes("Gaussian")) return "GMM";
+        if (a.name.includes("DBSCAN")) return "DBSCAN";
+        return a.name.split(" ")[0];
+    });
+
     const silhouettes = algos.map(a => a.silhouette);
     const calinskis = algos.map(a => a.calinski_harabasz);
     const dbs = algos.map(a => a.davies_bouldin);
@@ -246,35 +256,53 @@ function renderCharts(algos) {
     const layoutBase = {
         paper_bgcolor: 'transparent',
         plot_bgcolor: 'transparent',
-        font: { family: 'Plus Jakarta Sans, sans-serif', color: '#94a3b8', size: 11 },
-        margin: { t: 20, r: 20, l: 35, b: 35 },
-        xaxis: { gridcolor: 'rgba(255,255,255,0.05)' },
-        yaxis: { gridcolor: 'rgba(255,255,255,0.05)' }
+        font: { family: 'Inter, sans-serif', color: '#94a3b8', size: 11 },
+        margin: { t: 30, r: 15, l: 45, b: 40 },
+        xaxis: { gridcolor: 'transparent', tickfont: { size: 10, color: '#cbd5e1' } },
+        yaxis: { gridcolor: 'rgba(255,255,255,0.06)', tickfont: { size: 10, color: '#94a3b8' } }
     };
 
     // Silhouette Chart
+    const validSil = silhouettes.filter(v => v !== null && v !== undefined);
+    const maxSil = validSil.length ? Math.max(...validSil) * 1.3 : 1;
     Plotly.newPlot('chart-silhouette', [{
         x: names, y: silhouettes, type: 'bar',
-        marker: { color: '#818cf8', line: { color: 'rgba(255,255,255,0.3)', width: 1 } },
+        marker: { 
+            color: ['#818cf8', '#a5b4fc', '#c7d2fe', '#e0e7ff'], 
+            line: { color: 'rgba(255,255,255,0.2)', width: 1 } 
+        },
         text: silhouettes.map(v => (v !== null && v !== undefined) ? v.toFixed(3) : "N/A"),
-        textposition: 'auto',
-    }], layoutBase, { responsive: true, displayModeBar: false });
+        textposition: 'outside',
+        textfont: { size: 11, color: '#ffffff' }
+    }], { ...layoutBase, yaxis: { ...layoutBase.yaxis, range: [0, maxSil] } }, { responsive: true, displayModeBar: false });
 
     // Calinski Chart
+    const validCal = calinskis.filter(v => v !== null && v !== undefined);
+    const maxCal = validCal.length ? Math.max(...validCal) * 1.3 : 3000;
     Plotly.newPlot('chart-calinski', [{
         x: names, y: calinskis, type: 'bar',
-        marker: { color: '#38bdf8', line: { color: 'rgba(255,255,255,0.3)', width: 1 } },
+        marker: { 
+            color: ['#38bdf8', '#7dd3fc', '#bae6fd', '#e0f2fe'], 
+            line: { color: 'rgba(255,255,255,0.2)', width: 1 } 
+        },
         text: calinskis.map(v => (v !== null && v !== undefined) ? v.toFixed(0) : "N/A"),
-        textposition: 'auto',
-    }], layoutBase, { responsive: true, displayModeBar: false });
+        textposition: 'outside',
+        textfont: { size: 11, color: '#ffffff' }
+    }], { ...layoutBase, yaxis: { ...layoutBase.yaxis, range: [0, maxCal] } }, { responsive: true, displayModeBar: false });
 
     // Davies Bouldin Chart
+    const validDb = dbs.filter(v => v !== null && v !== undefined);
+    const maxDb = validDb.length ? Math.max(...validDb) * 1.3 : 2;
     Plotly.newPlot('chart-davies', [{
         x: names, y: dbs, type: 'bar',
-        marker: { color: '#f43f5e', line: { color: 'rgba(255,255,255,0.3)', width: 1 } },
+        marker: { 
+            color: ['#f43f5e', '#fb7185', '#fda4af', '#fecdd3'], 
+            line: { color: 'rgba(255,255,255,0.2)', width: 1 } 
+        },
         text: dbs.map(v => (v !== null && v !== undefined) ? v.toFixed(3) : "N/A"),
-        textposition: 'auto',
-    }], layoutBase, { responsive: true, displayModeBar: false });
+        textposition: 'outside',
+        textfont: { size: 11, color: '#ffffff' }
+    }], { ...layoutBase, yaxis: { ...layoutBase.yaxis, range: [0, maxDb] } }, { responsive: true, displayModeBar: false });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
