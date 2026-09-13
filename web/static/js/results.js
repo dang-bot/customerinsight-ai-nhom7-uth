@@ -163,8 +163,41 @@
     if (!profileTitle || !profileDesc) return;
 
     if (segmentId === "all") {
-      profileTitle.textContent = `Tổng quan ${profiles.length} phân khúc`;
-      profileDesc.innerHTML = `<p class="font-body-md text-body-md text-on-surface-variant">Chọn một thẻ phân khúc bên trên hoặc dùng tab để xem hồ sơ RFM chi tiết của từng nhóm.</p>`;
+      profileTitle.textContent = `Tổng quan ${profiles.length} phân khúc khách hàng`;
+      let overviewHTML = `
+        <div class="space-y-4">
+          <p class="text-xs text-slate-300">
+            Dữ liệu đã được phân hoạch thành <b>${profiles.length} phân khúc</b> chuyên biệt. Bạn có thể <b>nhấp vào bất kỳ cụm nào</b> để xem phân tích chi tiết và khuyến nghị kinh doanh:
+          </p>
+          <div class="space-y-2.5">
+      `;
+      profiles.forEach((p) => {
+        const color = getColor(p.cluster_id);
+        overviewHTML += `
+          <div class="p-3 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/20 hover:bg-white/[0.06] transition-all cursor-pointer flex items-center justify-between" onclick="document.querySelector('[data-card-segment=\\'${p.cluster_id}\\']')?.click()">
+            <div class="flex items-center gap-3">
+              <span class="w-3 h-3 rounded-full shrink-0" style="background-color: ${color}"></span>
+              <div>
+                <div class="font-bold text-xs text-white">${escapeHtml(p.cluster_label)}: <span style="color: ${color}">${escapeHtml(p.segment_name)}</span></div>
+                <div class="text-[11px] text-slate-400 mt-0.5 line-clamp-1">${escapeHtml(p.insight)}</div>
+              </div>
+            </div>
+            <div class="text-right shrink-0 ml-3">
+              <div class="text-xs font-mono font-bold text-white">${p.count} KH</div>
+              <div class="text-[10px] text-slate-400">${p.percentage}%</div>
+            </div>
+          </div>
+        `;
+      });
+      overviewHTML += `
+          </div>
+          <div class="text-[11px] text-indigo-300 flex items-center gap-1.5 pt-1">
+            <span class="material-symbols-outlined text-sm">touch_app</span>
+            <span>Mẹo: Nhấp vào từng phân khúc trên danh sách để mở hồ sơ RFM chi tiết và lọc bảng dữ liệu.</span>
+          </div>
+        </div>
+      `;
+      profileDesc.innerHTML = overviewHTML;
     } else {
       const info = clusterInfo[segmentId];
       if (!info) return;
@@ -194,7 +227,7 @@
           </div>
         </div>
 
-        <div class="font-label-sm text-on-surface-variant uppercase tracking-wider mb-1 font-semibold">✦ ĐẶC ĐIỂM NỔI BẬT</div>
+        <div class="font-label-sm text-on-surface-variant uppercase tracking-wider mb-1 font-semibold">✦ ĐẶC ĐIỂM NỔI BẬT & CHIẾN LƯỢC</div>
         <div class="font-body-md text-body-md text-on-surface">${escapeHtml(info.desc)}</div>
       `;
     }
