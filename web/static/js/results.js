@@ -66,45 +66,43 @@
     if (!container || !profiles) return;
 
     const k = profiles.length;
-    let colClass = "col-span-12 lg:col-span-4";
-    if (k === 2) colClass = "col-span-12 md:col-span-6";
-    else if (k === 4) colClass = "col-span-12 md:col-span-6 lg:col-span-3";
-    else if (k >= 5) colClass = "col-span-12 md:col-span-6 lg:col-span-4";
+    if (k === 2) container.className = "grid grid-cols-1 md:grid-cols-2 gap-4";
+    else if (k === 3) container.className = "grid grid-cols-1 md:grid-cols-3 gap-4";
+    else if (k === 4) container.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4";
+    else if (k === 5) container.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5";
+    else container.className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3";
 
     container.innerHTML = profiles
       .map((p) => {
         const color = getColor(p.cluster_id);
         const cardId = `card-${p.cluster_id}`;
         return `
-          <div class="${colClass} bg-surface-container-lowest rounded-xl border border-outline-variant p-md shadow-sm hover:shadow-md transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between" data-card-segment="${p.cluster_id}" id="${cardId}">
-            <div class="absolute top-0 right-0 p-2 opacity-10">
-              <span class="material-symbols-outlined text-6xl" style="color: ${color}">group</span>
-            </div>
+          <div class="glass-panel p-4 rounded-xl border border-white/10 hover:border-white/25 shadow-sm transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between" data-card-segment="${p.cluster_id}" id="${cardId}">
             <div>
-              <div class="flex justify-between items-start mb-sm relative z-10">
-                <div class="flex items-center gap-sm">
-                  <div class="w-4 h-4 rounded-full" style="background-color: ${color}"></div>
-                  <h3 class="font-title-md text-title-md text-on-surface font-bold">${escapeHtml(p.cluster_label)}</h3>
+              <div class="flex justify-between items-start mb-2 relative z-10">
+                <div class="flex items-center gap-2">
+                  <div class="w-3 h-3 rounded-full" style="background-color: ${color}"></div>
+                  <h3 class="text-sm font-bold text-white">${escapeHtml(p.cluster_label)}</h3>
                 </div>
-                <span class="font-label-sm text-label-sm bg-surface-container px-2 py-1 rounded text-on-surface-variant font-medium">${p.count} KH (${p.percentage}%)</span>
+                <span class="text-[10px] bg-white/10 px-2 py-0.5 rounded text-slate-300 font-mono">${p.count} KH (${p.percentage}%)</span>
               </div>
-              <div class="mb-md relative z-10">
-                <div class="font-body-md text-body-md font-bold mb-1" style="color: ${color}">${escapeHtml(p.segment_name)}</div>
-                <p class="font-label-sm text-label-sm text-on-surface-variant">Insight: ${escapeHtml(p.insight)}</p>
+              <div class="mb-3 relative z-10">
+                <div class="text-xs font-bold mb-1" style="color: ${color}">${escapeHtml(p.segment_name)}</div>
+                <p class="text-[11px] text-slate-400 line-clamp-2">${escapeHtml(p.insight)}</p>
               </div>
             </div>
-            <div class="grid grid-cols-3 gap-sm mt-auto pt-md border-t border-outline-variant relative z-10">
+            <div class="grid grid-cols-3 gap-2 mt-auto pt-2.5 border-t border-white/10 relative z-10 text-center font-mono">
               <div>
-                <div class="font-label-sm text-label-sm text-on-surface-variant">Mean R</div>
-                <div class="font-body-md text-body-md font-semibold">${p.mean_recency}</div>
+                <div class="text-[10px] text-slate-400">Mean R</div>
+                <div class="text-xs font-bold text-white">${p.mean_recency}</div>
               </div>
               <div>
-                <div class="font-label-sm text-label-sm text-on-surface-variant">Mean F</div>
-                <div class="font-body-md text-body-md font-semibold">${p.mean_frequency}</div>
+                <div class="text-[10px] text-slate-400">Mean F</div>
+                <div class="text-xs font-bold text-white">${p.mean_frequency}</div>
               </div>
               <div>
-                <div class="font-label-sm text-label-sm text-on-surface-variant">Mean M</div>
-                <div class="font-body-md text-body-md font-semibold">${p.mean_monetary}</div>
+                <div class="text-[10px] text-slate-400">Mean M</div>
+                <div class="text-xs font-bold text-white">${p.mean_monetary}</div>
               </div>
             </div>
           </div>
