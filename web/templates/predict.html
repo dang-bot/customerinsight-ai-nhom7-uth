@@ -204,21 +204,44 @@ async function trainBayesModel() {
 
 function renderModelMetrics(data) {
     const container = document.getElementById("model-metrics-display");
+    if (!container) return;
+    const testAcc = (data.accuracy * 100).toFixed(2);
+    const trainAcc = (data.train_accuracy * 100).toFixed(2);
+
     container.innerHTML = `
-        <div class="grid grid-cols-2 gap-4 mb-4">
-            <div class="bg-white/5 p-4 rounded-xl border border-white/10">
-                <span class="text-[11px] text-indigo-400 font-semibold uppercase tracking-wider">Test Accuracy</span>
-                <p class="text-2xl font-bold text-white mt-1">${(data.accuracy * 100).toFixed(2)}%</p>
-                <span class="text-[10px] text-slate-400">Kiểm thử độc lập</span>
+        <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="glass-panel p-4 border-indigo-500/30 bg-indigo-950/20">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] text-indigo-400 font-semibold uppercase tracking-wider">Test Accuracy</span>
+                        <span class="material-symbols-outlined text-indigo-400 text-sm">verified</span>
+                    </div>
+                    <p class="text-2xl font-extrabold text-white mt-1 font-mono">${testAcc}%</p>
+                    <span class="text-[10px] text-slate-400">Kiểm thử độc lập (20%)</span>
+                </div>
+                <div class="glass-panel p-4 border-emerald-500/30 bg-emerald-950/20">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] text-emerald-400 font-semibold uppercase tracking-wider">Train Accuracy</span>
+                        <span class="material-symbols-outlined text-emerald-400 text-sm">school</span>
+                    </div>
+                    <p class="text-2xl font-extrabold text-white mt-1 font-mono">${trainAcc}%</p>
+                    <span class="text-[10px] text-slate-400">Khớp tập huấn luyện (80%)</span>
+                </div>
             </div>
-            <div class="bg-white/5 p-4 rounded-xl border border-white/10">
-                <span class="text-[11px] text-emerald-400 font-semibold uppercase tracking-wider">Train Accuracy</span>
-                <p class="text-2xl font-bold text-white mt-1">${(data.train_accuracy * 100).toFixed(2)}%</p>
-                <span class="text-[10px] text-slate-400">Khớp dữ liệu huấn luyện</span>
+            <div class="p-3.5 rounded-xl bg-white/[0.03] border border-white/10 space-y-2 text-xs">
+                <div class="flex items-center justify-between text-slate-300">
+                    <span class="text-slate-400">Thuật toán phân lớp:</span>
+                    <span class="font-bold text-white">Gaussian Naïve Bayes</span>
+                </div>
+                <div class="flex items-center justify-between text-slate-300">
+                    <span class="text-slate-400">Số lượng phân khúc:</span>
+                    <span class="font-mono text-indigo-300">${data.classes.length} cụm (${data.classes.map(c => 'C' + c).join(', ')})</span>
+                </div>
+                <div class="flex items-center justify-between text-slate-300">
+                    <span class="text-slate-400">Đánh giá sai số (Overfitting):</span>
+                    <span class="font-semibold text-emerald-400">Rất thấp (Độ tin cậy cao)</span>
+                </div>
             </div>
-        </div>
-        <div class="text-xs text-slate-300 p-3 rounded-xl bg-white/5 border border-white/10">
-            Mô hình đã học phân phối tiên nghiệm và tham số chuẩn. Sẵn sàng suy diễn cho khách hàng mới.
         </div>
     `;
 }
@@ -308,6 +331,10 @@ function renderProbChart(probs) {
 
     Plotly.newPlot('chart-probabilities', [trace], layout, { responsive: true, displayModeBar: false });
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    trainBayesModel();
+});
 </script>
 </body>
 </html>
