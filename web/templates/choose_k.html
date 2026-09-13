@@ -13,7 +13,7 @@
     .filled-icon { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
 </style>
 </head>
-<body class="antialiased min-h-screen flex flex-col relative selection:bg-indigo-500 selection:text-white">
+<body class="antialiased min-h-screen flex flex-col relative selection:bg-indigo-500 selection:text-white pb-20">
 
 <div class="aurora-bg"></div>
 
@@ -44,97 +44,123 @@
 </header>
 
 <main class="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 py-10 flex-1 w-full space-y-8" id="choose-k-panel">
-    <!-- Header Title -->
-    <div class="space-y-2">
-        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-medium">
-            <span class="material-symbols-outlined text-sm">auto_graph</span>
-            Toán Học Rời Rạc & Tối Ưu Hóa Phân Hoạch
+    <!-- Header Title & Range Controls -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6">
+        <div class="space-y-2">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-medium">
+                <span class="material-symbols-outlined text-sm">auto_graph</span>
+                Toán Học Rời Rạc & Tối Ưu Hóa Phân Hoạch
+            </div>
+            <h1 class="text-3xl font-extrabold text-white tracking-tight">Xác Định Số Cụm K Tối Ưu</h1>
+            <p class="text-slate-400 text-sm max-w-2xl">
+                Sử dụng phối hợp Phương pháp Điểm Uốn (Elbow Method - WCSS Inertia) và Hệ số Silhouette trung bình để xác định số lượng phân khúc hợp lý nhất.
+            </p>
         </div>
-        <h1 class="text-3xl font-extrabold text-white tracking-tight">Xác Định Số Cụm K Tối Ưu</h1>
-        <p class="text-slate-400 text-sm max-w-2xl">
-            Sử dụng phối hợp Phương pháp Điểm Uốn (Elbow Method - WCSS Inertia) và Hệ số Silhouette trung bình để xác định số lượng phân khúc hợp lý nhất.
-        </p>
+        <!-- K Range Controller -->
+        <div class="glass-panel p-3 flex items-center gap-2 text-xs">
+            <span class="text-slate-400 font-medium">Khoảng K:</span>
+            <input type="number" id="k-min" min="2" max="5" value="2" class="w-14 bg-black/40 border border-white/15 rounded-lg px-2 py-1 text-center text-white font-mono" />
+            <span class="text-slate-500">→</span>
+            <input type="number" id="k-max" min="3" max="15" value="10" class="w-14 bg-black/40 border border-white/15 rounded-lg px-2 py-1 text-center text-white font-mono" />
+            <button id="btn-run-analysis" class="btn-apple-secondary text-xs px-3 py-1.5 gap-1.5 ml-1">
+                <span class="material-symbols-outlined text-sm">play_arrow</span>
+                <span>Phân tích</span>
+            </button>
+        </div>
     </div>
 
     <!-- Recommendation iOS Widget Card -->
-    <div class="glass-panel p-6 border-indigo-500/30 relative overflow-hidden">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
-                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-indigo-500/30">
-                    <span id="best-k-value">3</span>
+    <div id="recommendation-panel" class="glass-panel p-6 border-indigo-500/30 bg-gradient-to-r from-indigo-950/40 via-purple-950/30 to-slate-900/40 relative overflow-hidden transition-all duration-300">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div class="flex items-start sm:items-center gap-4">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-indigo-500/30 shrink-0">
+                    <span id="panel-k-value">K = 3</span>
                 </div>
-                <div>
-                    <div class="text-xs text-indigo-400 font-semibold uppercase tracking-wider">Khuyến nghị toán học tối ưu</div>
-                    <h3 class="text-xl font-bold text-white mt-0.5">Số Cụm Phù Hợp Nhất: K = <span id="best-k-display">3</span></h3>
-                    <p class="text-xs text-slate-300 mt-1" id="best-k-reason">
-                        Đạt hệ số Silhouette cao nhất (0.4588) và độ suy giảm Inertia đạt điểm khuỷu tay rõ rệt.
+                <div class="space-y-1">
+                    <div id="panel-header-text" class="text-xs text-indigo-400 font-semibold uppercase tracking-wider flex items-center gap-1.5">
+                        <span id="panel-star-icon" class="material-symbols-outlined text-sm text-amber-400">star</span>
+                        Khuyến nghị toán học tối ưu
+                    </div>
+                    <div id="panel-main-result">
+                        <h3 class="text-xl font-bold text-white">Số Cụm Đề Xuất (Silhouette: <span id="panel-sil-score" class="text-emerald-400 font-mono">--</span>)</h3>
+                    </div>
+                    <p class="text-xs text-slate-300 max-w-xl leading-relaxed" id="panel-desc-text">
+                        Đang phân tích các giá trị K ứng viên để tìm điểm uốn Elbow và Silhouette score cao nhất...
                     </p>
+                    <div id="panel-description"></div>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
-                <button id="apply-k-btn" class="btn-apple-primary text-xs px-5 py-2.5 gap-2">
-                    <span class="material-symbols-outlined text-base">check</span>
-                    Áp dụng K này cho Phân Cụm
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <button id="btn-confirm-k" class="btn-apple-primary text-xs sm:text-sm px-6 py-3 gap-2 shadow-lg shadow-indigo-500/30 whitespace-nowrap">
+                    <span class="material-symbols-outlined text-lg">check_circle</span>
+                    <span>Áp dụng K này cho Phân Cụm</span>
                 </button>
             </div>
         </div>
+        <div id="choose-k-error" class="hidden mt-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2"></div>
     </div>
 
     <!-- Dual Charts Grid (Elbow & Silhouette) -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Elbow Chart -->
-        <div class="glass-panel p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-base font-bold text-white flex items-center gap-2">
+        <!-- Elbow Chart Card -->
+        <div class="glass-panel p-6 space-y-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
                     <span class="material-symbols-outlined text-indigo-400">show_chart</span>
-                    Phương Pháp Điểm Uốn (Elbow Method)
-                </h3>
+                    <h3 class="text-sm font-bold text-white">Phương Pháp Điểm Uốn (Elbow Method - WCSS Inertia)</h3>
+                </div>
+                <span class="text-[11px] px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">Điểm khuỷu tay</span>
             </div>
-            <div id="elbow-chart" class="w-full h-80 flex items-center justify-center text-slate-500 text-xs">
-                Đang vẽ biểu đồ Elbow...
-            </div>
+            <div id="chart-elbow" class="w-full h-80 rounded-xl overflow-hidden"></div>
+            <p class="text-[11px] text-slate-400">
+                Inertia đo tổng bình phương khoảng cách từ mỗi điểm đến tâm cụm tương ứng. Điểm khuỷu tay (elbow) là nơi tốc độ suy giảm bắt đầu chậm lại.
+            </p>
         </div>
 
-        <!-- Silhouette Chart -->
-        <div class="glass-panel p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-base font-bold text-white flex items-center gap-2">
-                    <span class="material-symbols-outlined text-cyan-400">ssid_chart</span>
-                    Hệ Số Silhouette Theo Từng K
-                </h3>
+        <!-- Silhouette Chart Card -->
+        <div class="glass-panel p-6 space-y-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-teal-400">ssid_chart</span>
+                    <h3 class="text-sm font-bold text-white">Hệ Số Phân Tách Silhouette Score Theo Từng K</h3>
+                </div>
+                <span class="text-[11px] px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-300 border border-teal-500/30">Mức độ phân tách</span>
             </div>
-            <div id="silhouette-chart" class="w-full h-80 flex items-center justify-center text-slate-500 text-xs">
-                Đang vẽ biểu đồ Silhouette...
-            </div>
+            <div id="chart-silhouette" class="w-full h-80 rounded-xl overflow-hidden"></div>
+            <p class="text-[11px] text-slate-400">
+                Silhouette dao động từ -1 đến +1. Giá trị càng gần 1 biểu thị các cụm dữ liệu phân tách rõ rệt và độ gắn kết nội cụm cao.
+            </p>
         </div>
     </div>
 
     <!-- Candidates Table -->
-    <div class="glass-panel p-6">
-        <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
-            <span class="material-symbols-outlined text-purple-400">table_rows</span>
-            Bảng Đánh Giá Chi Tiết Các Giá Trị K Ứng Viên (K = 2 → 10)
-        </h3>
+    <div class="glass-panel p-6 space-y-4">
+        <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-purple-400 text-base">table_rows</span>
+                Bảng Đánh Giá Chi Tiết Các Giá Trị K Ứng Viên (Click vào dòng để chọn K thủ công)
+            </h3>
+            <span class="text-xs text-slate-400 font-mono" id="header-row-count">--</span>
+        </div>
         <div class="overflow-x-auto rounded-xl border border-white/10">
             <table class="w-full text-left border-collapse text-xs">
                 <thead>
                     <tr class="bg-white/5 border-b border-white/10 text-slate-400 font-semibold">
                         <th class="py-3 px-4">Số Cụm (K)</th>
-                        <th class="py-3 px-4">Độ Biến Thiên Nội Cụm (Inertia)</th>
+                        <th class="py-3 px-4">Inertia (WCSS)</th>
                         <th class="py-3 px-4">Silhouette Score</th>
-                        <th class="py-3 px-4">Mức Độ Tách Biệt</th>
-                        <th class="py-3 px-4">Đề Xuất Hành Động</th>
+                        <th class="py-3 px-4">Trạng Thái Đề Xuất</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-white/5 text-slate-300 font-mono" id="candidate-table-body">
-                    <!-- Populated by choose_k.js -->
+                    <!-- Populated dynamically by choose_k.js -->
                 </tbody>
             </table>
         </div>
     </div>
 
     <!-- Navigation Actions -->
-    <div class="flex justify-between items-center pt-4">
+    <div class="flex justify-between items-center pt-4 border-t border-white/10">
         <a href="/eda" class="btn-apple-secondary text-sm gap-2">
             <span class="material-symbols-outlined text-lg">arrow_back</span>
             <span>Quay lại: Khám phá EDA</span>
@@ -145,6 +171,25 @@
         </a>
     </div>
 </main>
+
+<!-- Confirmed Floating Action Bar -->
+<div id="next-step-bar" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 translate-y-full">
+    <div class="glass-panel px-6 py-3.5 shadow-2xl border-emerald-500/40 bg-slate-900/90 backdrop-blur-xl flex items-center gap-6 rounded-2xl">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                <span class="material-symbols-outlined text-lg">check</span>
+            </div>
+            <div>
+                <div class="text-xs font-bold text-white">Đã thiết lập cấu hình phân cụm thành công!</div>
+                <div class="text-[11px] text-slate-400" id="next-step-subtitle">Bước tiếp theo: chạy K-Means</div>
+            </div>
+        </div>
+        <a href="/clustering" class="btn-apple-primary text-xs px-4 py-2 gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500">
+            <span>Đến Phân Cụm Ngay</span>
+            <span class="material-symbols-outlined text-base">arrow_forward</span>
+        </a>
+    </div>
+</div>
 
 <script src="/static/js/app.js"></script>
 <script src="/static/js/choose_k.js"></script>
