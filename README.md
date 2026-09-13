@@ -20,7 +20,7 @@ Hệ thống được phát triển theo chuẩn kiến trúc khoa học dữ li
 | 2 | **Đặng Hoàng Trung** | Mô hình dự đoán Naive Bayes | Ứng dụng lý thuyết xác suất Bayes (Chương 4) huấn luyện **Gaussian Naïve Bayes** |
 | 3 | **Đặng Đình Khang** | Web UI & API | Xây dựng RESTful API FastAPI & thiết kế giao diện **Apple Glassmorphism** |
 | 4 | **Nguyễn Quang Hiếu** | Báo cáo kỹ thuật | Phụ trách tài liệu kỹ thuật, slide thuyết trình & tổng hợp phân tích |
-| 5 | **Nguyễn Thái Học** | Đánh giá & Benchmark (QA) | Đo lường hiệu năng 3 chỉ số Silhouette, CH, DB Index & bộ kiểm thử tự động 203 tests |
+| 5 | **Trần Lê Thái Học** | Đánh giá & Benchmark (QA) | Đo lường hiệu năng 3 chỉ số Silhouette, CH, DB Index & bộ kiểm thử tự động 203 tests |
 
 ---
 
